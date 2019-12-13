@@ -36,6 +36,9 @@ public class ConversationViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.img_avatar)
     ImageView imgAvatar;
 
+    @BindView(R.id.conversation_online)
+    View online;
+
     public ConversationViewHolder(@NonNull View itemView) {
         super(itemView);
         ButterKnife.bind(this ,itemView);
@@ -63,5 +66,13 @@ public class ConversationViewHolder extends RecyclerView.ViewHolder {
         this.txtTime.setText( StringHelper.getLongTimeText(time));
 
 
+    }
+
+    public void setOnline(boolean isOnline){
+        if (isOnline){
+            online.setVisibility(View.VISIBLE);
+        }else{
+            online.setVisibility(View.GONE);
+        }
     }
 }

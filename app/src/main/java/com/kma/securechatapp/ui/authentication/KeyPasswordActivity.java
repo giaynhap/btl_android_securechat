@@ -2,6 +2,7 @@ package com.kma.securechatapp.ui.authentication;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -14,6 +15,7 @@ import com.kma.securechatapp.core.AppData;
 import com.kma.securechatapp.core.api.ApiInterface;
 import com.kma.securechatapp.core.api.ApiUtil;
 import com.kma.securechatapp.core.api.model.UserKey;
+import com.kma.securechatapp.core.event.EventBus;
 import com.kma.securechatapp.core.security.AES;
 import com.kma.securechatapp.core.security.RSAUtil;
 import com.kma.securechatapp.core.service.DataService;
@@ -72,7 +74,7 @@ public class KeyPasswordActivity extends AppCompatActivity {
 
             String privateKey = userKey.privateKey; ;
             userKey.privateKey = RSAUtil.base64Encode(AES.encrypt( RSAUtil.base64Decode(userKey.privateKey) , pass));
-            DataService.getInstance(this).storePrivateKey(AppData.getInstance().currentUser.uuid, privateKey);
+            DataService.getInstance(this).storePrivateKey(AppData.getInstance().currentUser.uuid, privateKey,AppData.getInstance().password);
             DataService.getInstance(this).save();
 
             try {
@@ -81,6 +83,7 @@ public class KeyPasswordActivity extends AppCompatActivity {
                 e.printStackTrace();
                 Toast.makeText(this,"Something error!!",Toast.LENGTH_SHORT).show();
             }
+            userKey.privateKey = privateKey;
             AppData.getInstance().userKey = userKey;
             finishActivity(0);
             finish();
@@ -97,7 +100,7 @@ public class KeyPasswordActivity extends AppCompatActivity {
                 {
                     userKey.privateKey = priateKey;
                     AppData.getInstance().userKey = userKey;
-                    DataService.getInstance(this).storePrivateKey(AppData.getInstance().currentUser.uuid, userKey.privateKey);
+                    DataService.getInstance(this).storePrivateKey(AppData.getInstance().currentUser.uuid, userKey.privateKey,AppData.getInstance().password);
                     finishActivity(0);
                     finish();
                 }
@@ -113,7 +116,14 @@ public class KeyPasswordActivity extends AppCompatActivity {
         }
         DataService.getInstance(this).save();
 
-
-
+    }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+    {
+        if ((keyCode == KeyEvent.KEYCODE_BACK))
+        {
+            EventBus.getInstance().pushOnLogout(AppData.getInstance().currentUser);
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

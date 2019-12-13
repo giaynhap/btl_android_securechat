@@ -17,6 +17,13 @@ android {
             buildConfigField "String", "WS_FULL_PATH", "\"ws://192.168.44.103:8082/ws/websocket\""
 
         }
+
+        debug_lab {
+            signingConfig signingConfigs.debug
+            buildConfigField "String", "HOST", "\"http://192.168.0.107:8082/\""
+            buildConfigField "String", "WS_FULL_PATH", "\"ws://192.168.0.107:8082/ws/websocket\""
+        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -41,6 +48,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    implementation 'com.android.support:support-v4:29.+'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'

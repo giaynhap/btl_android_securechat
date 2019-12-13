@@ -93,7 +93,6 @@ public class InboxViewModel extends ViewModel {
                     conversationInfo.setValue(null);
                 }
             }
-
             @Override
             public void onFailure(Call<ApiResponse<Conversation>> call, Throwable t) {
                 conversationInfo.setValue(null);
@@ -103,7 +102,7 @@ public class InboxViewModel extends ViewModel {
 
     public void loadMore(){
         //lastTime
-        if (cache != null){
+        if (cache != null && cache.size() > 0 ){
             lastTime = cache.get(cache.size()-1).time;
         }else{
             lastTime =0;

@@ -11,6 +11,8 @@ import com.kma.securechatapp.BuildConfig;
 import com.kma.securechatapp.R;
 import com.kma.securechatapp.adapter.viewholder.ContactViewHolder;
 import com.kma.securechatapp.core.api.model.Contact;
+import com.kma.securechatapp.utils.common.ImageLoader;
+
 import java.util.List;
 
 public class ContactAdapter extends   RecyclerView.Adapter {
@@ -30,8 +32,9 @@ public class ContactAdapter extends   RecyclerView.Adapter {
         ContactViewHolder contactHolder = (ContactViewHolder)holder;
         Contact contact = contacts.get(position);
         contactHolder.setContactName(contact.contactName);
-        contactHolder.setContactAvatar(BuildConfig.HOST +"users/avatar/"+contact.contactUuid+"?width=80&height=80");
+        contactHolder.setContactAvatar(ImageLoader.getUserAvatarUrl(contact.contactUuid,80,80));
         contactHolder.setSubName(contact.contactUuid);
+        contactHolder.setOnline(contact.online);
 
     }
 

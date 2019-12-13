@@ -39,7 +39,7 @@ public class DataService {
 
     }
 
-    public void storePrivateKey(String uuid,String privateKey){
+    public void storePrivateKey(String uuid,String privateKey,String password){
         editor.putString(PRIVATE_KEY+uuid,privateKey);
     }
     public void save(){
@@ -63,7 +63,7 @@ public class DataService {
         return null;
     }
 
-    public String getPrivateKey(String uuid){
+    public String getPrivateKey(String uuid,String password){
         try {
             return sharedPreferences.getString(PRIVATE_KEY+uuid, null);
         }catch (Exception e){

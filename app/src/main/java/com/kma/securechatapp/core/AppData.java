@@ -15,6 +15,7 @@ public class AppData {
      public String account = null;
      public String deviceId = null;
      public UserKey userKey = null;
+     public String password = "md5";
      private PrivateKey privateKey = null;
 
 

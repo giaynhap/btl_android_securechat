@@ -4,6 +4,7 @@ import com.kma.securechatapp.core.AppData;
 import com.kma.securechatapp.BuildConfig;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -38,7 +39,10 @@ public class ApiUtil {
             }
         });
 
-        OkHttpClient client =httpClientBuilder.addInterceptor(interceptor).build();
+        OkHttpClient client =httpClientBuilder.addInterceptor(interceptor)
+                .readTimeout(60,TimeUnit.SECONDS)
+                .connectTimeout(60,TimeUnit.SECONDS)
+                .build();
 
 
         retrofit = new Retrofit.Builder()

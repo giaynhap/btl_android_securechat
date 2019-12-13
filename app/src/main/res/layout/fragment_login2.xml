@@ -39,7 +39,7 @@
                     android:layout_height="wrap_content"
                     android:hint="Opt code"
                     android:inputType="text"
-
+                    android:imeOptions="actionNext"
                     ></com.google.android.material.textfield.TextInputEditText>
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -55,6 +55,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Password"
                 android:inputType="textPassword"
+                android:imeOptions="actionDone"
 
                 ></com.google.android.material.textfield.TextInputEditText>
 

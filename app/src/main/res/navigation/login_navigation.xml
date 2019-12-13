@@ -17,4 +17,10 @@
         android:name="com.kma.securechatapp.ui.authentication.PasswordFragment"
         android:label=""
         tools:layout="@layout/fragment_login2" />
+
+    <fragment
+        android:id="@+id/navigation_create_account"
+        android:name="com.kma.securechatapp.ui.authentication.createaccount.CreateAccountFragment"
+        android:label=""
+        tools:layout="@layout/fragment_create_account" />
 </navigation>

@@ -22,15 +22,28 @@ public class MessageAdapter extends   RecyclerView.Adapter {
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
 
-        if (viewType == 0) {
-            view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_message_sent, parent, false);
-            return new MessageSenderViewHolder(view);
-        } else if (viewType == 1) {
-            view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_message_received, parent, false);
-            return new MessageReceivederViewHolder(view);
+        switch (viewType){
+
+            case 0:
+                view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_message_sent, parent, false);
+                return new MessageSenderViewHolder(view);
+
+            case 10:
+                view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_image_sent, parent, false);
+                return new MessageSenderViewHolder(view);
+            case 11:
+                view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_image_received, parent, false);
+                return new MessageReceivederViewHolder(view);
+            case 1:
+                view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_message_received, parent, false);
+                return new MessageReceivederViewHolder(view);
+
         }
+
         return null;
     }
 
@@ -40,16 +53,23 @@ public class MessageAdapter extends   RecyclerView.Adapter {
 
         if (message.senderUuid.equals(AppData.getInstance().currentUser.uuid)) {
             // If the current user is the sender of the message
-            return 0;
+            if (message.type==0)
+                 return 0 ;
+            else if (message.type == 1)
+                return 10;
         } else {
             // If some other user sent the message
-            return 1;
+            if (message.type==0)
+                return 1 ;
+            else if (message.type == 1)
+                return 11;
         }
+        return 0;
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-         if (holder.getItemViewType() == 1){
+         if (holder.getItemViewType() == 1|| holder.getItemViewType() == 11){
              ((MessageReceivederViewHolder)holder).bind(messages.get(position));
          }else{
              ((MessageSenderViewHolder)holder).bind(messages.get(position));

@@ -1,5 +1,7 @@
 package com.kma.securechatapp.core.api;
 
+import android.database.Observable;
+
 import com.kma.securechatapp.core.api.model.ApiResponse;
 import com.kma.securechatapp.core.api.model.AuthenRequest;
 import com.kma.securechatapp.core.api.model.AuthenResponse;
@@ -9,13 +11,19 @@ import com.kma.securechatapp.core.api.model.Message;
 import com.kma.securechatapp.core.api.model.PageResponse;
 import com.kma.securechatapp.core.api.model.UserInfo;
 import com.kma.securechatapp.core.api.model.UserKey;
+import com.kma.securechatapp.core.api.model.UserRegistRequest;
+import com.kma.securechatapp.core.api.model.VerifyRegister;
 
 import java.util.List;
 
+import okhttp3.MultipartBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -75,5 +83,22 @@ public interface ApiInterface {
 
     @POST("/keyprovider/update")
     Call<ApiResponse<String>> updateKey(@Body UserKey key);
+
+    @POST("/users/verifyRegister")
+    Call<ApiResponse<String>> verifyRegister(@Body VerifyRegister verify);
+
+    @POST("/users/add")
+    Call<ApiResponse<UserInfo>> registNewAccount(@Body UserRegistRequest regist);
+
+    @Multipart
+    @POST("file/image")
+    Call<ApiResponse<String>> uploadImage( @Part MultipartBody.Part image);
+    @Multipart
+    @POST("users/avatar")
+    Call<ApiResponse<String>> uploadAvatar( @Part MultipartBody.Part image);
+
+
+
+
 
 }

@@ -22,11 +22,10 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="20dp"
-        app:layout_constraintBottom_toTopOf="@+id/layout_chatbox"
+        app:layout_constraintBottom_toTopOf="@+id/layout_upload"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/message_toolbar"
-        >
+        app:layout_constraintTop_toBottomOf="@+id/message_toolbar">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/reyclerview_message_list"
@@ -36,6 +35,19 @@
             />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+    <LinearLayout
+        android:padding="5dp"
+        android:id="@+id/layout_upload"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#ffffff"
+        android:gravity="right"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/layout_chatbox"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+    </LinearLayout>
     <!-- A horizontal line between the chatbox and RecyclerView -->
     <TextView
         android:id="@+id/inbox_status"
@@ -61,10 +73,17 @@
         android:orientation="horizontal"
         android:minHeight="48dp"
         android:background="#ffffff"
+        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent">
-
+        <ImageView
+            android:id="@+id/btn_image"
+            android:padding="5dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_photo_size_select_actual_black_24dp"
+            />
         <EditText
             android:id="@+id/edittext_chatbox"
             android:hint="Enter message"
@@ -79,11 +98,12 @@
 
         <Button
             android:id="@+id/button_chatbox_send"
-            android:text="SEND"
+            android:text=""
+
             android:textSize="14dp"
-            android:background="?attr/selectableItemBackground"
+            android:background="@drawable/bg_button_send"
             android:clickable="true"
-            android:layout_width="64dp"
+            android:layout_width="48dp"
             android:layout_height="48dp"
             android:gravity="center"
             android:layout_gravity="bottom" />

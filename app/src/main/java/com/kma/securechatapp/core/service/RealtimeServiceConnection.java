@@ -33,13 +33,13 @@ public class RealtimeServiceConnection {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                 RealtimeService.LocalBinder binder  = (RealtimeService.LocalBinder) iBinder;
-                mService = binder.getService();
-                mBound = true;
-                if (callConnect ){
-                    mService.connectSocket();
+                RealtimeServiceConnection.this.mService = binder.getService();
+                RealtimeServiceConnection.this.mBound = true;
+                if (RealtimeServiceConnection.this.callConnect ){
+                    RealtimeServiceConnection.this.mService.connectSocket();
                 }
-                if (callRestart ){
-                    mService.resStart();
+                if (RealtimeServiceConnection.this.callRestart ){
+                    RealtimeServiceConnection.this.mService.resStart();
                 }
             }
 
@@ -68,10 +68,7 @@ public class RealtimeServiceConnection {
         }
     }
 
-    public void connectSocketService(Context context) {
-        Intent intent = new Intent(context, RealtimeService.class);
-        context.bindService(intent, mSocketServiceConnection, Context.BIND_AUTO_CREATE);
-    }
+
 
     public void disconnectSocketService(Context context) {
         if (mSocketServiceConnection != null) {
@@ -102,9 +99,9 @@ public class RealtimeServiceConnection {
         }
         return false;
     }
-    public boolean send(String message, String thread, List<UserInfo> users ){
+    public boolean send(int type,String message, String thread, List<UserInfo> users ){
         if (this.mService != null) {
-            return mService.sendMessage(message, thread, null, users);
+            return mService.sendMessage(type, message, thread, null, users);
         }
         return false;
     }

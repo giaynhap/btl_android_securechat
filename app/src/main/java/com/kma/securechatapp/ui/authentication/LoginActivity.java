@@ -81,14 +81,21 @@ public class LoginActivity extends AppCompatActivity {
             show = true;
         }
         else {
-            if (DataService.getInstance(context).getPrivateKey(AppData.getInstance().currentUser.uuid) == null){
+            String privateKey = DataService.getInstance(context).getPrivateKey(AppData.getInstance().currentUser.uuid,AppData.getInstance().password);
+            if ( privateKey == null){
                 intent.putExtra("data",2);
                 show = true;
             }else{
                 UserKey userKey  =  new UserKey(null,null);
                 userKey.publicKey = api.getPublicKey(AppData.getInstance().currentUser.uuid).execute().body().data;
-                userKey.privateKey = DataService.getInstance(context).getPrivateKey(AppData.getInstance().currentUser.uuid) ;
+                userKey.privateKey = privateKey ;
                 AppData.getInstance().userKey = userKey;
+
+                if (AppData.getInstance().getPrivateKey() == null){
+                    intent.putExtra("data",2);
+                    show = true;
+                }
+
             }
         }
         if (show){

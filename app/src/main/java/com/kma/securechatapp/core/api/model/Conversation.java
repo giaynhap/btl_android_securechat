@@ -1,6 +1,7 @@
 package com.kma.securechatapp.core.api.model;
 
 import com.google.gson.annotations.SerializedName;
+import com.kma.securechatapp.core.AppData;
 
 import java.util.List;
 
@@ -30,5 +31,28 @@ public class Conversation {
         this.UUID = UUID;
         this.user_uuid = user_uuid;
         this.name = name;
+    }
+
+    public boolean isOnline(){
+        if ( AppData.getInstance().currentUser == null || users == null || users.size()<1)
+            return false;
+
+        String uuid = AppData.getInstance().currentUser.uuid;
+        for (UserInfo u : users){
+            if (!u.uuid.equals(uuid) && u.online ){
+                return true;
+            }
+        }
+
+        return false;
+    }
+    @Override
+    public boolean equals(Object o){
+       try{
+           Conversation c = (Conversation)o;
+           return c.UUID.equals(UUID);
+       }catch (Exception e){
+           return false;
+       }
     }
 }

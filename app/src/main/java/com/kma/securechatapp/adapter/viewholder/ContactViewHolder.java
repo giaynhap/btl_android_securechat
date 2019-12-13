@@ -26,8 +26,11 @@ public class ContactViewHolder extends RecyclerView.ViewHolder {
     public TextView title;
     @Nullable
     @BindView(R.id.contact_item_subname)
-
     public TextView subname;
+
+    @BindView(R.id.contact_online)
+    public View online;
+
     public ContactViewHolder(@NonNull View itemView) {
         super(itemView);
         ButterKnife.bind(this ,itemView);
@@ -59,5 +62,12 @@ public class ContactViewHolder extends RecyclerView.ViewHolder {
         if (name!= null && this.subname != null)
             this.subname.setText(name);
 
+    }
+    public void setOnline(boolean isOnline){
+        if (isOnline){
+            online.setVisibility(View.VISIBLE);
+        }else{
+            online.setVisibility(View.GONE);
+        }
     }
 }

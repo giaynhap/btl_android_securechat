@@ -32,18 +32,20 @@ public class AccountFragment extends Fragment {
     @BindView(R.id.account_input)
     TextInputEditText text_account;
     ApiInterface api = ApiUtil.getChatApi();
+    NavController navController;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_login, container, false);
         ButterKnife.bind(this, root);
-
+        navController = NavHostFragment.findNavController(this);
         return root;
     }
 
     @OnClick(R.id.btn_signup)
     public void buttonSignUpClick(View view){
 
+        navController.navigate(R.id.navigation_create_account);
 
     }
 
@@ -53,7 +55,7 @@ public class AccountFragment extends Fragment {
        // Toast.makeText(this.getContext(),text_account.getText().toString(),Toast.LENGTH_SHORT).show();
         CommonHelper.showLoading(this.getContext());
         AppData.getInstance().account = text_account.getText().toString();
-        NavController navController = NavHostFragment.findNavController(this);
+
 
         api.userExist( AppData.getInstance().account).enqueue(new Callback<ApiResponse<UserInfo>>() {
             @Override

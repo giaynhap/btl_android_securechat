@@ -59,6 +59,7 @@ public class RealtimeService extends Service {
     private String token ;
     private String deviceId;
     private boolean regist = false;
+    private boolean connecting = false;
     private List<String> listThreadRegist = new ArrayList<>();
 
     public class LocalBinder extends Binder {
@@ -70,12 +71,33 @@ public class RealtimeService extends Service {
     private final IBinder mBinder = new LocalBinder();
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+
+        return START_STICKY;
+    }
+
+    @Override
     public void onCreate() {
         super.onCreate();
         deviceId =  Settings.Secure.getString(this.getApplication().getContentResolver(),
                 Settings.Secure.ANDROID_ID);
 
-        initSocket();
+        if (Build.VERSION.SDK_INT >= 26) {
+            String CHANNEL_ID = "chanel_000";
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
+                    "GiayNhap",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+
+            ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
+
+            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                    .setContentTitle("")
+                    .setContentText("").build();
+
+            startForeground(1, notification);
+        }
+
+      //  initSocket();
 
     }
     private boolean closeSocket = false;
@@ -98,7 +120,7 @@ public class RealtimeService extends Service {
         if (client != null){
             disconnectSocket();
         }
-
+        closeSocket = false;
         regist = false;
         client = Stomp.over(Stomp.ConnectionProvider.OKHTTP, BuildConfig.WS_FULL_PATH);
         client.withClientHeartbeat(1000).withServerHeartbeat(1000);
@@ -109,20 +131,22 @@ public class RealtimeService extends Service {
                 .subscribe(lifecycleEvent -> {
                     switch (lifecycleEvent.getType()) {
                         case OPENED:
+                            connecting = false;
                             Log.d(TAG, "initSocket: OPENED" + lifecycleEvent.getMessage());
                             break;
                         case ERROR:
+                            connecting = false;
                             Log.d(TAG, "initSocket: ERROR" + lifecycleEvent.getException());
                             if (!closeSocket) {
-                                initSocket();
+                                resStart();
                             }
                             break;
                         case CLOSED:
+                            connecting = false;
                             Log.d(TAG, "initSocket: CLOSED" + lifecycleEvent.getMessage());
-                            if (!closeSocket) {
-                                initSocket();
-                            }
+
                             break;
+
                     }
                 });
 
@@ -130,39 +154,44 @@ public class RealtimeService extends Service {
 
     @SuppressLint("CheckResult")
     public void connectSocket() {
-        if (!client.isConnected() && !closeSocket) {
 
+        if (!regist) {
             String username =DataService.getInstance(this.getApplication()).getUserUuid();
             String channel = "/topic/" + username;
-            if (!regist) {
-                client.topic(channel, getHeaders())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(response -> {
-                            String jsonString = response.getPayload();
-                            Gson gson = new Gson();
-                            SocketMessageCommand message = gson.fromJson(jsonString, SocketMessageCommand.class);
-                            Log.d("Test", jsonString);
-                            switch (message.getCommand()) {
-                                case MESSAGE:
-                                    MessagePlaneText planeMessage = SecureChatSystem.getInstance().decode(message.getData());
-                                    if (checkThreadToSoft(planeMessage.threadUuid)) {
-                                        sendBroadcastNewMessage(planeMessage);
-                                    } else {
-                                        createNotification(planeMessage);
-                                    }
-                                    break;
-                                case READ:
-                                    sendBroadcastStatus(ServiceAction.REVC_READ, message.getData().uuid, message.getData().senderUuid, 1);
-                                    break;
-                                case TYPING:
-                                    sendBroadcastStatus(ServiceAction.REVC_TYPING, message.getData().uuid, message.getData().senderUuid, message.getData().type);
-                                    break;
-                            }
 
-                        });
-                regist = true;
-            }
+            client.topic(channel, getHeaders())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(response -> {
+                        String jsonString = response.getPayload();
+                        Gson gson = new Gson();
+                        SocketMessageCommand message = gson.fromJson(jsonString, SocketMessageCommand.class);
+                        Log.d("Test", jsonString);
+                        switch (message.getCommand()) {
+                            case MESSAGE:
+                                MessagePlaneText planeMessage = SecureChatSystem.getInstance().decode(message.getData());
+                                if (checkThreadToSoft(planeMessage.threadUuid)) {
+                                    sendBroadcastNewMessage(planeMessage);
+                                } else {
+                                    createNotification(planeMessage);
+                                }
+                                break;
+                            case READ:
+                                sendBroadcastStatus(ServiceAction.REVC_READ, message.getData().uuid, message.getData().senderUuid, 1);
+                                break;
+                            case TYPING:
+                                sendBroadcastStatus(ServiceAction.REVC_TYPING, message.getData().uuid, message.getData().senderUuid, message.getData().type);
+                                break;
+                        }
+
+                    });
+            regist = true;
+        }
+
+        if (!client.isConnected() ) {
+
+            connecting = true;
+
             client.connect(getHeaders());
 
         }
@@ -176,8 +205,12 @@ public class RealtimeService extends Service {
     }
 
     public void disconnectSocket() {
+        closeSocket = true;
+        if (client != null)
         if (client.isConnected()){
             client.disconnect();
+            regist = false;
+            client = null;
 
         }
     }
@@ -199,7 +232,10 @@ public class RealtimeService extends Service {
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
 
 
-
+        String strMsg= message.mesage;
+        if(message.type != 0){
+            strMsg= "An attachment";
+        }
         Intent notificationIntent = new Intent(this, InboxActivity.class);
         notificationIntent
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -210,7 +246,7 @@ public class RealtimeService extends Service {
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle("New message from "+message.conversation.name)
-                        .setContentText(message.mesage)
+                        .setContentText(strMsg)
                         .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
                         .setDefaults(Notification.DEFAULT_SOUND)
                         .setAutoCancel(true)
@@ -238,7 +274,9 @@ public class RealtimeService extends Service {
     public boolean sendStatusMessage(MessageCommand status,int type,String thread){
         if (client == null || !client.isConnected())
         {
-            resStart();
+            if (!connecting) {
+               resStart();
+            }
             return false;
         }
         Message plt = new Message();
@@ -270,17 +308,19 @@ public class RealtimeService extends Service {
     }
 
     @SuppressLint("CheckResult")
-    public boolean sendMessage(String message, String thread, String deviceCode, List<UserInfo> users){
+    public boolean sendMessage(int type,String message, String thread, String deviceCode, List<UserInfo> users){
         if (deviceCode == null){
             deviceCode = deviceId;
         }
         if (client == null || !client.isConnected())
         {
-          client.reconnect();
+            if (!connecting) {
+                resStart();
+            }
             return false;
         }
         MessagePlaneText plt = new MessagePlaneText();
-        plt.type = 0;
+        plt.type = type;
         plt.threadUuid = thread;
         plt.deviceCode = deviceCode;
         plt.mesage = message;
@@ -342,4 +382,10 @@ public class RealtimeService extends Service {
 
     }
 
+    @Override
+    public void onDestroy() {
+        disconnectSocket();
+        super.onDestroy();
+
+    }
 }

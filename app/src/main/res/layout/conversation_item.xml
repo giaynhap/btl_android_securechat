@@ -37,15 +37,22 @@
     <LinearLayout
         android:layout_weight="0"
         android:layout_width="80dp"
-        android:gravity="right"
+        android:gravity="bottom|right"
+        android:orientation="vertical"
         android:layout_height="match_parent">
         <TextView
+            android:id="@+id/conversation_online"
+            android:background="#00cc00"
+            android:gravity="right"
+            android:layout_width="12dp"
+            android:layout_height="12dp"/>
+        <TextView
             android:id="@+id/text_time"
-            android:layout_gravity="bottom"
             android:text="20:01"
             android:textSize="10dip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
+
     </LinearLayout>
 
 </LinearLayout>

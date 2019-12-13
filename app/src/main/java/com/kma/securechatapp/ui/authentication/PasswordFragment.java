@@ -24,6 +24,7 @@ import com.kma.securechatapp.core.api.model.AuthenRequest;
 import com.kma.securechatapp.core.api.model.AuthenResponse;
 import com.kma.securechatapp.core.api.model.Device;
 import com.kma.securechatapp.core.api.model.UserInfo;
+import com.kma.securechatapp.core.event.EventBus;
 import com.kma.securechatapp.core.service.DataService;
 import com.kma.securechatapp.core.service.RealtimeService;
 import com.kma.securechatapp.core.service.RealtimeServiceConnection;
@@ -132,9 +133,7 @@ public class PasswordFragment extends Fragment {
 
                 DataService.getInstance(null).save();
                 DataService.getInstance(null).save();
-                Intent intent = new Intent(PasswordFragment.this.getActivity(), RealtimeService.class);
-                PasswordFragment.this.getActivity().startService(intent);
-                RealtimeServiceConnection.getInstance().restart();
+
                 onLoginSuccess();
 
             }
@@ -149,12 +148,7 @@ public class PasswordFragment extends Fragment {
 
     }
     void onLoginSuccess(){
-        try {
-            LoginActivity.showInputPass(this.getContext(),api);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        EventBus.getInstance().pushOnLogin(AppData.getInstance().currentUser);
         PasswordFragment.this.getActivity().finishActivity(0);
         PasswordFragment.this.getActivity().finish();
     }

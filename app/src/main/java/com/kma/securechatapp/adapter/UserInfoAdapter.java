@@ -11,6 +11,7 @@ import com.kma.securechatapp.BuildConfig;
 import com.kma.securechatapp.R;
 import com.kma.securechatapp.adapter.viewholder.UserViewHolder;
 import com.kma.securechatapp.core.api.model.UserInfo;
+import com.kma.securechatapp.utils.common.ImageLoader;
 
 import java.util.List;
 
@@ -30,8 +31,9 @@ public class UserInfoAdapter extends   RecyclerView.Adapter {
         UserViewHolder contactHolder = (UserViewHolder)holder;
         UserInfo user = users.get(position);
         contactHolder.setName(user.name);
-        contactHolder.setAvatar(BuildConfig.HOST +"users/avatar/"+user.uuid+"?width=80&height=80");
+        contactHolder.setAvatar(ImageLoader.getUserAvatarUrl(user.uuid,80,80));
         contactHolder.setAddress(user.address);
+
     }
 
     @Override

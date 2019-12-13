@@ -1,10 +1,16 @@
 package com.kma.securechatapp;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.StrictMode;
 import android.provider.Settings;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -12,11 +18,16 @@ import com.kma.securechatapp.core.AppData;
 import com.kma.securechatapp.core.api.ApiInterface;
 import com.kma.securechatapp.core.api.ApiUtil;
 import com.kma.securechatapp.core.api.model.ApiResponse;
+import com.kma.securechatapp.core.api.model.MessagePlaneText;
+import com.kma.securechatapp.core.api.model.UserInfo;
+import com.kma.securechatapp.core.event.EventBus;
 import com.kma.securechatapp.core.service.DataService;
 import com.kma.securechatapp.core.service.RealtimeService;
 import com.kma.securechatapp.core.service.RealtimeServiceConnection;
 import com.kma.securechatapp.ui.authentication.KeyPasswordActivity;
 import com.kma.securechatapp.ui.authentication.LoginActivity;
+import com.kma.securechatapp.ui.contact.ContactAddActivity;
+import com.kma.securechatapp.ui.profile.UserProfileActivity;
 import com.kma.securechatapp.utils.common.ImageLoader;
 
 import androidx.annotation.Nullable;
@@ -31,6 +42,7 @@ import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
@@ -42,12 +54,38 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
     NavController navController;
+    EventBus.EvenBusAction evenBus;
+
+    class NavigateHeaderBind{
+        @BindView(R.id.h_user_name)
+        TextView leftUserName;
+        @BindView(R.id.h_user_status)
+        TextView leftUserStatus;
+        @BindView(R.id.h_avatar)
+        ImageView leftUserAvatr;
+        @OnClick(R.id.h_avatar)
+        void onClickProfile(View view)
+        {
+            Intent intent = new Intent(MainActivity.this, UserProfileActivity.class);
+
+            intent.putExtra("uuid",AppData.getInstance().currentUser.uuid);
+            intent.setAction("view_profile");
+            startActivity(intent);
+        }
+    }
+    NavigateHeaderBind navHeaderBind = new NavigateHeaderBind();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+        ButterKnife.bind(navHeaderBind, navLeft.getHeaderView(0));
+        instance = this;
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         ImageLoader.getInstance().bind(this);
+        register();
+
 
 
         AppData.getInstance().deviceId = Settings.Secure.getString(this.getApplication().getContentResolver(),
@@ -64,9 +102,7 @@ public class MainActivity extends AppCompatActivity {
                 AppData.getInstance().setToken(DataService.getInstance(this).getToken());
 
                 try {
-
                     AppData.getInstance().currentUser = api.getCurrenUserInfo().execute().body().data;
-
                 } catch (Exception e) {
                     AppData.getInstance().currentUser = null;
                 }
@@ -87,21 +123,12 @@ public class MainActivity extends AppCompatActivity {
 
         }else{
             DataService.getInstance(null).save();
-            Intent intent = new Intent(this, RealtimeService.class);
-            startService(intent);
-            RealtimeServiceConnection.getInstance().startService();
-
-            try {
-                LoginActivity.showInputPass(this,api);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            EventBus.getInstance().pushOnLogin(AppData.getInstance().currentUser);
         }
-
         DataService.getInstance(null).save();
-        instance = this;
-        setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
+
+
+
 
         getSupportActionBar().hide();
 
@@ -113,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
         bindNavLeft();
+
     }
 
     @Override
@@ -124,13 +152,62 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+    void register(){
 
+        evenBus = new EventBus.EvenBusAction(){
+            @Override
+            public void onNetworkStateChange(int state){
+
+            }
+
+            @Override
+            public  void onLogin(UserInfo u){
+                try {
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent(MainActivity.this, RealtimeService.class);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                startForegroundService(intent);
+                            } else {
+                                startService(intent);
+                            }
+                            RealtimeServiceConnection.getInstance().restart();
+                        }
+                    });
+                    LoginActivity.showInputPass(MainActivity.this,api);
+                    bindLeftHeader();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onLogout(UserInfo u){
+                AppData.getInstance().clean();
+                DataService.getInstance(MainActivity.this).storeToken(null,null);
+                DataService.getInstance(MainActivity.this).storeUserUuid(null);
+                DataService.getInstance(MainActivity.this).save();
+                RealtimeServiceConnection.getInstance().onlyDisconnectSocket();
+                Intent intent2 = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent2);
+
+            }
+        };
+        EventBus.getInstance().addEvent(evenBus);
+
+    }
+    void bindLeftHeader(){
+        navHeaderBind.leftUserName.setText(AppData.getInstance().currentUser.name);
+        navHeaderBind.leftUserStatus.setText("Online");
+        ImageLoader.getInstance().DisplayImage(ImageLoader.getUserAvatarUrl(AppData.getInstance().currentUser.uuid,200,200),navHeaderBind.leftUserAvatr);
+    }
     void bindNavLeft(){
         navLeft.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        menuItem.setChecked(true);
+                 
                         drawerLayout.closeDrawers();
                         switch (menuItem.getItemId()){
 
@@ -145,24 +222,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void logout(){
-        AppData.getInstance().clean();
-        DataService.getInstance(this).storeToken(null,null);
-        DataService.getInstance(this).storeUserUuid(null);
-        DataService.getInstance(this).save();
-        RealtimeServiceConnection.getInstance().onlyDisconnectSocket();
-        Intent intent2 = new Intent(this, LoginActivity.class);
-        startActivity(intent2);
+        EventBus.getInstance().pushOnLogout(AppData.getInstance().currentUser);
     }
 
 
 }
-
-
-/*
-
-database:
-124.158.6.219
-3306
-root/ht15181012
-
- */

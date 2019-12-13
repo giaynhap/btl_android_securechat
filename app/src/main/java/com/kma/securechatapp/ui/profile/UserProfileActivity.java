@@ -13,9 +13,11 @@ import android.widget.TextView;
 
 import com.kma.securechatapp.BuildConfig;
 import com.kma.securechatapp.R;
+import com.kma.securechatapp.core.AppData;
 import com.kma.securechatapp.core.api.model.UserInfo;
 import com.kma.securechatapp.helper.ImageLoadTask;
 import com.kma.securechatapp.ui.conversation.InboxActivity;
+import com.kma.securechatapp.utils.common.ImageLoader;
 import com.kma.securechatapp.utils.misc.CircularImageView;
 
 import butterknife.BindView;
@@ -55,6 +57,7 @@ public class UserProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user_profile);
         ButterKnife.bind(this);
 
+
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -72,6 +75,9 @@ public class UserProfileActivity extends AppCompatActivity {
         Intent intent = this.getIntent();
         type = (intent.getAction().equals("view_user"))?1:0;
         uuid = intent.getStringExtra("uuid");
+        if (uuid.equals(AppData.getInstance().currentUser.uuid)){
+            type = 0;
+        }
 
 
         userProfileViewModel =  ViewModelProviders.of(this).get(UserProfileViewModel.class);
@@ -115,7 +121,8 @@ public class UserProfileActivity extends AppCompatActivity {
         if (info == null){
            onBackPressed();
         }
-        new ImageLoadTask(BuildConfig.HOST +"users/avatar/"+uuid+"?width=160&height=160",avartar).execute();
+
+        ImageLoader.getInstance().DisplayImage(BuildConfig.HOST +"users/avatar/"+uuid+"?width=160&height=160",avartar);
         profileName.setText(info.name);
         profileAddress.setText(info.address);
     }

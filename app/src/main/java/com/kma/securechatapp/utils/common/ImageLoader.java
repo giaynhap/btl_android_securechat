@@ -20,6 +20,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.widget.ImageView;
 
+import com.kma.securechatapp.BuildConfig;
 import com.kma.securechatapp.R;
 
 public class ImageLoader {
@@ -182,6 +183,10 @@ public class ImageLoader {
     public void clearCache() {
         memoryCache.clear();
         fileCache.clear();
+    }
+
+    public static String getUserAvatarUrl(String uuid,int width,int height){
+        return BuildConfig.HOST +"users/avatar/"+uuid+"?width="+width+"&height="+height;
     }
 
 }

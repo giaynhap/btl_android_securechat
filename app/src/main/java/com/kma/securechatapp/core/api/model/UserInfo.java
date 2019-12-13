@@ -19,6 +19,10 @@ public class UserInfo {
   @SerializedName("publickey")
   public String publicKey;
 
+  @SerializedName("online")
+  public boolean online;
+
+
   private PublicKey _publicKey= null;
 
   public UserInfo(String uuid, String name, String address, Long dob) {
@@ -39,5 +43,14 @@ public class UserInfo {
       }
     }
     return _publicKey;
+  }
+  @Override
+  public boolean equals(Object o){
+    try{
+      UserInfo c = (UserInfo)o;
+      return c.uuid.equals(uuid);
+    }catch (Exception e){
+      return false;
+    }
   }
 }
