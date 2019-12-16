@@ -125,6 +125,7 @@ public class RealtimeService extends Service {
         client = Stomp.over(Stomp.ConnectionProvider.OKHTTP, BuildConfig.WS_FULL_PATH);
         client.withClientHeartbeat(1000).withServerHeartbeat(1000);
 
+
         client.lifecycle()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -154,41 +155,42 @@ public class RealtimeService extends Service {
 
     @SuppressLint("CheckResult")
     public void connectSocket() {
-
-        if (!regist) {
-            String username =DataService.getInstance(this.getApplication()).getUserUuid();
-            String channel = "/topic/" + username;
-
-            client.topic(channel, getHeaders())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(response -> {
-                        String jsonString = response.getPayload();
-                        Gson gson = new Gson();
-                        SocketMessageCommand message = gson.fromJson(jsonString, SocketMessageCommand.class);
-                        Log.d("Test", jsonString);
-                        switch (message.getCommand()) {
-                            case MESSAGE:
-                                MessagePlaneText planeMessage = SecureChatSystem.getInstance().decode(message.getData());
-                                if (checkThreadToSoft(planeMessage.threadUuid)) {
-                                    sendBroadcastNewMessage(planeMessage);
-                                } else {
-                                    createNotification(planeMessage);
-                                }
-                                break;
-                            case READ:
-                                sendBroadcastStatus(ServiceAction.REVC_READ, message.getData().uuid, message.getData().senderUuid, 1);
-                                break;
-                            case TYPING:
-                                sendBroadcastStatus(ServiceAction.REVC_TYPING, message.getData().uuid, message.getData().senderUuid, message.getData().type);
-                                break;
-                        }
-
-                    });
-            regist = true;
-        }
-
         if (!client.isConnected() ) {
+                if (!regist) {
+                    String username =DataService.getInstance(this.getApplication()).getUserUuid();
+                    String channel = "/topic/" + username;
+                    regist = true;
+                    client.topic(channel, getHeaders())
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .onErrorReturn(throwable -> {
+                                return null;
+                            })
+                            .subscribe(response -> {
+                                String jsonString = response.getPayload();
+                                Gson gson = new Gson();
+                                SocketMessageCommand message = gson.fromJson(jsonString, SocketMessageCommand.class);
+                                Log.d("Test", jsonString);
+                                switch (message.getCommand()) {
+                                    case MESSAGE:
+                                        MessagePlaneText planeMessage = SecureChatSystem.getInstance().decode(message.getData(),null);
+                                        if (checkThreadToSoft(planeMessage.threadUuid)) {
+                                            sendBroadcastNewMessage(planeMessage);
+                                        } else {
+                                            createNotification(planeMessage);
+                                        }
+                                        break;
+                                    case READ:
+                                        sendBroadcastStatus(ServiceAction.REVC_READ, message.getData().uuid, message.getData().senderUuid, 1);
+                                        break;
+                                    case TYPING:
+                                        sendBroadcastStatus(ServiceAction.REVC_TYPING, message.getData().uuid, message.getData().senderUuid, message.getData().type);
+                                        break;
+                                }
+
+                            });
+
+                }
 
             connecting = true;
 
@@ -236,6 +238,9 @@ public class RealtimeService extends Service {
         if(message.type != 0){
             strMsg= "An attachment";
         }
+        if (message.encrypted){
+            strMsg="A message";
+        }
         Intent notificationIntent = new Intent(this, InboxActivity.class);
         notificationIntent
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -245,7 +250,7 @@ public class RealtimeService extends Service {
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.mipmap.ic_launcher)
-                        .setContentTitle("New message from "+message.conversation.name)
+                        .setContentTitle("New message from "+message.threadName)
                         .setContentText(strMsg)
                         .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
                         .setDefaults(Notification.DEFAULT_SOUND)
@@ -308,7 +313,7 @@ public class RealtimeService extends Service {
     }
 
     @SuppressLint("CheckResult")
-    public boolean sendMessage(int type,String message, String thread, String deviceCode, List<UserInfo> users){
+    public boolean sendMessage(int type,String message, String thread, String deviceCode, byte[] key){
         if (deviceCode == null){
             deviceCode = deviceId;
         }
@@ -326,16 +331,8 @@ public class RealtimeService extends Service {
         plt.mesage = message;
         List<UserCryMessage> msgs = new ArrayList<>();
         // ma ho voi tung user
-        for (UserInfo u : users){
-            String encryptTxt = SecureChatSystem.getInstance().encode(message, u.getPublicKey() );
-            UserCryMessage um = new UserCryMessage();
-            um.message = encryptTxt;
-            um.uuid = u.uuid;
-            msgs.add(um);
-        }
 
-        Message encMessage =  SecureChatSystem.getInstance().encode(plt);
-        encMessage.payload = new Gson().toJson(msgs);
+        Message encMessage =  SecureChatSystem.getInstance().encode(plt,key);
 
         SocketMessageCommand  command = new SocketMessageCommand();
         command.setCommand(MessageCommand.MESSAGE);

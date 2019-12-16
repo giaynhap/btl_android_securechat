@@ -32,7 +32,10 @@ public class MessagePlaneText implements Serializable  {
     @SerializedName("sender")
     public UserInfo sender;
 
-    @SerializedName("conversation")
-    public  Conversation conversation;
+    @SerializedName("thread_name")
+    public  String threadName ;
+
+    @SerializedName("encrypted")
+    public  boolean encrypted;
 
 }

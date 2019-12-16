@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -28,6 +30,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -50,8 +53,12 @@ import com.kma.securechatapp.core.service.RealtimeService;
 import com.kma.securechatapp.core.service.RealtimeServiceConnection;
 import com.kma.securechatapp.core.service.ServiceAction;
 import com.kma.securechatapp.ui.contact.ContactAddViewModel;
+import com.kma.securechatapp.ui.conversation.Inbox.ChatFragment;
+import com.kma.securechatapp.utils.common.AudioRecorder;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -66,20 +73,19 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static android.view.View.GONE;
 import static butterknife.OnTextChanged.Callback.BEFORE_TEXT_CHANGED;
 
-public class InboxActivity extends AppCompatActivity implements  SocketReceiver.OnSocketMessageListener, SwipeRefreshLayout.OnRefreshListener{
+public class InboxActivity extends AppCompatActivity implements  SocketReceiver.OnSocketMessageListener{
 
     ApiInterface api = ApiUtil.getChatApi();
     public static final int PICK_IMAGE = 1;
     @BindView(R.id.message_toolbar)
     Toolbar toolbar;
-    @BindView(R.id.reyclerview_message_list)
-    RecyclerView recyclerView;
+
     @BindView(R.id.inbox_status)
     TextView txtStatus;
-    @BindView(R.id.load_more)
-    SwipeRefreshLayout refreshLayout;
+
     @BindView(R.id.process_label)
     TextView processLabel;
     @BindView(R.id.btn_image)
@@ -88,9 +94,19 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
     @BindView(R.id.layout_upload)
     LinearLayout uploadLayout;
 
+    @BindView(R.id.edittext_chatbox)
+    EditText edit;
+    @BindView(R.id.layout_media)
+    LinearLayout mediaLayout;
+    @BindView(R.id.button_chatbox_send)
+    Button btnSend;
+
+    @BindView(R.id.panel_audio)
+    LinearLayout panelAudio;
+    AudioRecorder recoder  = null;
 
 
-    MessageAdapter messageAdapter = new MessageAdapter();
+    public ChatFragment.ChatUiEvent uiEvent = null;
     String uuid ;
     private InboxViewModel inboxViewModel ;
 
@@ -122,41 +138,35 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
         toolbar.setTitle("Inbox");
 
 
-        recyclerView.setAdapter(messageAdapter);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        linearLayoutManager.setReverseLayout(true);
-        recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerView.setHasFixedSize(true);
-
-
         inboxViewModel.getConversationInfo().observe(this,conversation -> {
             if (conversation == null){
                 onBackPressed();
                 return;
             }
             toolbar.setTitle(conversation.name);
+            inboxViewModel.trigerLoadMessage(0);
+
         });
         inboxViewModel.getMessages().observe(this,messages->{
-            refreshLayout.setRefreshing(false);
-            messageAdapter.setMessages(messages);
-            messageAdapter.notifyDataSetChanged();
-            processLabel.setVisibility(View.GONE);
+            if (uiEvent!=null){
+                uiEvent.loadedMessages(messages);
+            }
+            processLabel.setVisibility(GONE);
 
         });
 
         inboxViewModel.getMessage().observe(this,message->{
-            messageAdapter.addNewMessage(message);
-            messageAdapter.notifyItemInserted(0);
-            recyclerView.scrollToPosition(0);
-            processLabel.setVisibility(View.GONE);
+            if (uiEvent!=null){
+                uiEvent.revcNewMessage(message);
+            }
+            processLabel.setVisibility(GONE);
         });
         inboxViewModel.setConversationUuid(uuid);
-        inboxViewModel.trigerLoadMessage(0);
 
 
-        refreshLayout.setOnRefreshListener(this);
-        txtStatus.setVisibility(View.GONE);
+        txtStatus.setVisibility(GONE);
+        btnSend.setVisibility(GONE);
+        panelAudio.setVisibility(GONE);
         register();
     }
 
@@ -171,17 +181,20 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
         RealtimeServiceConnection.getInstance().sendStatus(MessageCommand.READ,1,uuid);
     }
 
-    @BindView(R.id.edittext_chatbox)
-    EditText edit;
+
     @OnFocusChange(R.id.edittext_chatbox)
     public void onChatChange(View v, boolean hasFocus) {
         if (hasFocus) {
             RealtimeServiceConnection.getInstance().sendStatus(MessageCommand.TYPING,1,uuid);
             RealtimeServiceConnection.getInstance().sendStatus(MessageCommand.READ,1,uuid);
             typing = true;
+            mediaLayout.setVisibility(GONE);
+            btnSend.setVisibility(View.VISIBLE);
         }else{
             RealtimeServiceConnection.getInstance().sendStatus(MessageCommand.TYPING,0,uuid);
             typing = false;
+            mediaLayout.setVisibility(View.VISIBLE);
+            btnSend.setVisibility(GONE);
         }
     }
     boolean typing = false;
@@ -194,11 +207,11 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
             return ;
         }
 
-        if (!RealtimeServiceConnection.getInstance().send(0,sendMessage,uuid,inboxViewModel.getConversation().users)){
+        if (!inboxViewModel.send(0,sendMessage,uuid)){
             Toast.makeText(this,"Something error, can't send message",Toast.LENGTH_SHORT).show();
         }else{
             edit.setText("");
-            txtStatus.setVisibility(View.GONE);
+            txtStatus.setVisibility(GONE);
             typing = false;
         }
     }
@@ -213,6 +226,7 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
         }
     }
 
+
     @OnClick(R.id.btn_image)
     void onUploadImage(View view){
 
@@ -220,6 +234,71 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
         startActivityForResult(galleryIntent, PICK_IMAGE);
 
     }
+    boolean uploadingAudip = false;
+    @OnClick(R.id.btn_audio)
+    void onClickAudio (View views){
+        if (recoder != null){
+            stopRecoder (0);
+            recoder = null;
+            panelAudio.setVisibility(GONE);
+            return;
+        }
+         recoder = new AudioRecorder("rc"+uuid,this.getApplicationContext());
+        try {
+            panelAudio.setVisibility(View.VISIBLE);
+            recoder.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void stopRecoder(int type){
+        Log.d("test","Stop recoder");
+        try {
+            uploadingAudip = true;
+            panelAudio.setVisibility(GONE);
+            if (recoder != null) {
+                recoder.stop();
+            }
+
+            if (type == 1){
+                File file = recoder.getFile();
+                RequestBody requestFile =
+                        RequestBody.create(MediaType.parse("multipart/form-data"), file);
+                MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+                api.uploadAudio(body).enqueue(new Callback<ApiResponse<String>>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse<String>> call, Response<ApiResponse<String>> response) {
+                        uploadingAudip = false;
+                        String url = response.body().data;
+                        if (! inboxViewModel.send(2,url,uuid) ){
+                            Toast.makeText(InboxActivity.this,"Something error, can't send message",Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<ApiResponse<String>> call, Throwable t) {
+                        uploadingAudip = false;
+
+                    }
+                });
+
+                recoder = null;
+            }else{
+                recoder = null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @OnClick(R.id.panel_audio)
+    void audioTouch(View view){
+        stopRecoder(1);
+    }
+
     @Override
     public void onNewMessage(MessagePlaneText message) {
         Log.d("Test","THIS "+message.mesage);
@@ -227,7 +306,7 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
             return;
         }
         inboxViewModel.trigerNewMessage(message);
-        txtStatus.setVisibility(View.GONE);
+        txtStatus.setVisibility(GONE);
     }
 
 
@@ -244,7 +323,7 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
             txtStatus.setVisibility(View.VISIBLE);
         }else
         {
-            txtStatus.setVisibility(View.GONE);
+            txtStatus.setVisibility(GONE);
         }
     }
 
@@ -267,7 +346,6 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
 
     }
 
-    @Override
     public void onRefresh() {
         inboxViewModel.loadMore();
     }
@@ -336,7 +414,7 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
         }
         public void onComplete(String url){
             uploadLayout.removeView(imageView);
-            if (!RealtimeServiceConnection.getInstance().send(1,url,uuid,inboxViewModel.getConversation().users)){
+            if (!inboxViewModel.send(1,url,uuid)){
                 Toast.makeText(InboxActivity.this,"Something error, can't send message",Toast.LENGTH_SHORT).show();
             }
         }

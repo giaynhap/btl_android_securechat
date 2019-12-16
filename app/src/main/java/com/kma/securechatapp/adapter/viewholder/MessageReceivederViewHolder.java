@@ -13,10 +13,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.kma.securechatapp.BuildConfig;
 import com.kma.securechatapp.MainActivity;
 import com.kma.securechatapp.R;
+import com.kma.securechatapp.core.AppData;
 import com.kma.securechatapp.core.api.model.MessagePlaneText;
 import com.kma.securechatapp.helper.ImageLoadTask;
 import com.kma.securechatapp.utils.common.ImageLoader;
 import com.kma.securechatapp.utils.common.StringHelper;
+import com.kma.securechatapp.utils.misc.AudioUi;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -47,8 +49,14 @@ public class MessageReceivederViewHolder extends RecyclerView.ViewHolder {
 
                 }
             });
-        }else if (msg.type == 0){
+        }
+        else if (msg.type == 0){
             ((TextView)txtBody).setText(msg.mesage);
+        }else if (msg.type == 2)
+        {
+            ((AudioUi)txtBody).setUrl(BuildConfig.HOST +msg.mesage);
+            ((AudioUi)txtBody).addHeader("Authorization","Bearer "+ AppData.getInstance().getToken());
+
         }
         txtName.setText(msg.sender.name);
         txtTime.setText(StringHelper.getTimeText(msg.time));

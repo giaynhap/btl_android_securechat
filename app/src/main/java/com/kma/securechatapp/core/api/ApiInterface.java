@@ -9,6 +9,7 @@ import com.kma.securechatapp.core.api.model.Contact;
 import com.kma.securechatapp.core.api.model.Conversation;
 import com.kma.securechatapp.core.api.model.Message;
 import com.kma.securechatapp.core.api.model.PageResponse;
+import com.kma.securechatapp.core.api.model.UserConversation;
 import com.kma.securechatapp.core.api.model.UserInfo;
 import com.kma.securechatapp.core.api.model.UserKey;
 import com.kma.securechatapp.core.api.model.UserRegistRequest;
@@ -70,6 +71,9 @@ public interface ApiInterface {
     @GET("/conversation/messages/{uuid}")
     Call<ApiResponse<List<Message>>> pageMessage(@Path("uuid") String uuid, @Query("time")long time);
 
+    @POST("/conversation/udpatekey/{uuid}")
+    Call<ApiResponse<String>> updateKey(@Path("uuid") String uuid, @Body List<UserConversation> userConversations);
+
 
     @GET("/users/prelogin/{device}/{username}")
     Call<ApiResponse<UserInfo>> preLogin(@Path("username") String username, @Path("device")String device);
@@ -93,9 +97,15 @@ public interface ApiInterface {
     @Multipart
     @POST("file/image")
     Call<ApiResponse<String>> uploadImage( @Part MultipartBody.Part image);
+
     @Multipart
     @POST("users/avatar")
     Call<ApiResponse<String>> uploadAvatar( @Part MultipartBody.Part image);
+
+    @Multipart
+    @POST("file/audio")
+    Call<ApiResponse<String>> uploadAudio( @Part MultipartBody.Part audio);
+
 
 
 

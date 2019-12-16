@@ -36,6 +36,7 @@ public class ImageLoader {
         if (instance == null){
             instance = new ImageLoader();
         }
+
         return instance;
     }
     public ImageLoader(){
@@ -49,31 +50,42 @@ public class ImageLoader {
     final int stub_id= R.mipmap.ic_launcher;
     public void DisplayImage(String url, ImageView imageView)
     {
+        DisplayImage(url,imageView,false);
+    }
+
+    public void DisplayImage(String url, ImageView imageView,boolean reload)
+    {
+
         imageViews.put(imageView, url);
-        Bitmap bitmap=memoryCache.get(url);
+        Bitmap bitmap= null;
+        if (!reload) {
+            bitmap = memoryCache.get(url);
+        }
         if(bitmap!=null)
             imageView.setImageBitmap(bitmap);
         else
         {
-            queuePhoto(url, imageView);
+            queuePhoto(url, imageView,reload);
             imageView.setImageResource(stub_id);
         }
     }
 
-    private void queuePhoto(String url, ImageView imageView)
+    private void queuePhoto(String url, ImageView imageView,boolean reload)
     {
-        PhotoToLoad p=new PhotoToLoad(url, imageView);
+        PhotoToLoad p=new PhotoToLoad(url, imageView,reload);
         executorService.submit(new PhotosLoader(p));
     }
 
-    private Bitmap getBitmap(String url)
+    private Bitmap getBitmap(String url,boolean reload)
     {
-        File f=fileCache.getFile(url);
+        File f = fileCache.getFile(url);
 
-        //from SD cache
-        Bitmap b = decodeFile(f);
-        if(b!=null)
-            return b;
+        if (!reload) {
+            //from SD cache
+            Bitmap b = decodeFile(f);
+            if (b != null)
+                return b;
+        }
 
         //from web
         try {
@@ -130,9 +142,11 @@ public class ImageLoader {
     {
         public String url;
         public ImageView imageView;
-        public PhotoToLoad(String u, ImageView i){
+        public boolean reload;
+        public PhotoToLoad(String u, ImageView i,boolean reload){
             url=u;
             imageView=i;
+            this.reload = reload;
         }
     }
 
@@ -146,7 +160,7 @@ public class ImageLoader {
         public void run() {
             if(imageViewReused(photoToLoad))
                 return;
-            Bitmap bmp=getBitmap(photoToLoad.url);
+            Bitmap bmp=getBitmap(photoToLoad.url,photoToLoad.reload);
             memoryCache.put(photoToLoad.url, bmp);
             if(imageViewReused(photoToLoad))
                 return;

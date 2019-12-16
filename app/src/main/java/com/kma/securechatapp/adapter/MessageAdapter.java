@@ -33,6 +33,11 @@ public class MessageAdapter extends   RecyclerView.Adapter {
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.item_image_sent, parent, false);
                 return new MessageSenderViewHolder(view);
+            case 20:
+
+                view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_audio_sent, parent, false);
+                return new MessageSenderViewHolder(view);
             case 11:
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.item_image_received, parent, false);
@@ -40,6 +45,10 @@ public class MessageAdapter extends   RecyclerView.Adapter {
             case 1:
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.item_message_received, parent, false);
+                return new MessageReceivederViewHolder(view);
+            case 21:
+                view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_audio_received, parent, false);
                 return new MessageReceivederViewHolder(view);
 
         }
@@ -57,19 +66,25 @@ public class MessageAdapter extends   RecyclerView.Adapter {
                  return 0 ;
             else if (message.type == 1)
                 return 10;
+            else if (message.type == 2){
+                return 20;
+            }
         } else {
             // If some other user sent the message
             if (message.type==0)
                 return 1 ;
             else if (message.type == 1)
                 return 11;
+            else if (message.type == 2){
+                return 21;
+            }
         }
         return 0;
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-         if (holder.getItemViewType() == 1|| holder.getItemViewType() == 11){
+         if (holder.getItemViewType() == 1|| holder.getItemViewType() == 11|| holder.getItemViewType()==21){
              ((MessageReceivederViewHolder)holder).bind(messages.get(position));
          }else{
              ((MessageSenderViewHolder)holder).bind(messages.get(position));

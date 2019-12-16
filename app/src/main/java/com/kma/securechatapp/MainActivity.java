@@ -2,6 +2,7 @@ package com.kma.securechatapp;
 
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -32,6 +33,8 @@ import com.kma.securechatapp.utils.common.ImageLoader;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -44,6 +47,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import retrofit2.Response;
+
+import static android.Manifest.permission.CAMERA;
+import static android.Manifest.permission.INTERNET;
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.RECORD_AUDIO;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -86,6 +95,30 @@ public class MainActivity extends AppCompatActivity {
         ImageLoader.getInstance().bind(this);
         register();
 
+        if (
+                ContextCompat.checkSelfPermission(this.getApplicationContext(), READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED
+                        ||
+                ContextCompat.checkSelfPermission(this.getApplicationContext(), INTERNET)
+                        != PackageManager.PERMISSION_GRANTED
+                        ||
+                ContextCompat.checkSelfPermission(this.getApplicationContext(), RECORD_AUDIO)
+                        != PackageManager.PERMISSION_GRANTED
+
+        ) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]
+                    {
+                            CAMERA,
+                            INTERNET,
+                            RECORD_AUDIO,
+                            NETWORK_STATS_SERVICE,
+                            READ_EXTERNAL_STORAGE,
+                            WRITE_EXTERNAL_STORAGE
+
+                    }, 1);
+
+        }
+
 
 
         AppData.getInstance().deviceId = Settings.Secure.getString(this.getApplication().getContentResolver(),
@@ -95,27 +128,27 @@ public class MainActivity extends AppCompatActivity {
             AppData.getInstance().currentUser = new UserInfo("000-000-0000","GN","",null);
         }*/
        // else
-            {
 
-            if (DataService.getInstance(this).getToken() != null) {
 
-                AppData.getInstance().setToken(DataService.getInstance(this).getToken());
+        if (DataService.getInstance(this).getToken() != null) {
 
-                try {
-                    AppData.getInstance().currentUser = api.getCurrenUserInfo().execute().body().data;
-                } catch (Exception e) {
-                    AppData.getInstance().currentUser = null;
-                }
-                if (AppData.getInstance().currentUser == null){
-                    AppData.getInstance().setToken(null);
-                    DataService.getInstance(this).storeToken(null,null);
-                }else{
-                    AppData.getInstance().setRefreshToken(DataService.getInstance(this).getRefreshtoken());
-                    DataService.getInstance(this).storeUserUuid(AppData.getInstance().currentUser.uuid);
+            AppData.getInstance().setToken(DataService.getInstance(this).getToken());
 
-                }
+            try {
+                AppData.getInstance().currentUser = api.getCurrenUserInfo().execute().body().data;
+            } catch (Exception e) {
+                AppData.getInstance().currentUser = null;
+            }
+            if (AppData.getInstance().currentUser == null){
+                AppData.getInstance().setToken(null);
+                DataService.getInstance(this).storeToken(null,null);
+            }else{
+                AppData.getInstance().setRefreshToken(DataService.getInstance(this).getRefreshtoken());
+                DataService.getInstance(this).storeUserUuid(AppData.getInstance().currentUser.uuid);
+
             }
         }
+
         RealtimeServiceConnection.getInstance().bindService(this);
         if (AppData.getInstance().getToken() == null) {
             Intent intent2 = new Intent(this, LoginActivity.class);
@@ -126,9 +159,6 @@ public class MainActivity extends AppCompatActivity {
             EventBus.getInstance().pushOnLogin(AppData.getInstance().currentUser);
         }
         DataService.getInstance(null).save();
-
-
-
 
         getSupportActionBar().hide();
 

@@ -22,6 +22,8 @@ import java.time.ZoneId;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static android.view.View.GONE;
+
 public class ConversationViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.text_message)
     TextView txtMessage;
@@ -38,6 +40,9 @@ public class ConversationViewHolder extends RecyclerView.ViewHolder {
 
     @BindView(R.id.conversation_online)
     View online;
+
+    @BindView(R.id.count_un_read)
+    TextView txtUnRead;
 
     public ConversationViewHolder(@NonNull View itemView) {
         super(itemView);
@@ -72,7 +77,15 @@ public class ConversationViewHolder extends RecyclerView.ViewHolder {
         if (isOnline){
             online.setVisibility(View.VISIBLE);
         }else{
-            online.setVisibility(View.GONE);
+            online.setVisibility(GONE);
+        }
+    }
+    public void setNumUnRead(int unread){
+        if (unread < 1){
+            txtUnRead.setVisibility(GONE);
+        }else{
+            txtUnRead.setVisibility(View.VISIBLE);
+            txtUnRead.setText(unread+"");
         }
     }
 }

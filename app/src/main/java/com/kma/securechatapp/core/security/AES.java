@@ -46,6 +46,38 @@ public class AES {
         }
         return null;
     }
+    public static byte[] encrypt(String strToEncrypt, byte[] secret)
+    {
+        try
+        {
+            secretKey = new SecretKeySpec(secret, "AES");
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            return cipher.doFinal(strToEncrypt.getBytes("UTF-8"));
+        }
+        catch (Exception e)
+        {
+            System.out.println("Error while encrypting: " + e.toString());
+        }
+        return null;
+    }
+
+    public static String decrypt(byte[] data, byte[] secret)
+    {
+        try
+        {
+            secretKey = new SecretKeySpec(secret, "AES");
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            return new String(cipher.doFinal( data ));
+        }
+        catch (Exception e)
+        {
+            System.out.println("Error while decrypting: " + e.toString());
+        }
+        return null;
+    }
+
     public static byte[] encrypt(byte[] data, String secret)
     {
         try

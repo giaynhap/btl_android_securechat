@@ -42,6 +42,7 @@ public class ConversationAdapter extends RecyclerView.Adapter {
         conversationHolder.setMessage("encryptd");
         conversationHolder.setTime(conversation.lastMessageAt);
         conversationHolder.setOnline(conversation.isOnline());
+        conversationHolder.setNumUnRead(conversation.unRead);
     }
 
     @Override

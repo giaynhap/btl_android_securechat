@@ -1,5 +1,8 @@
 package com.kma.securechatapp.ui.profile;
 
+import android.widget.ImageView;
+import android.widget.Toast;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -10,12 +13,18 @@ import com.kma.securechatapp.core.api.model.ApiResponse;
 import com.kma.securechatapp.core.api.model.Contact;
 import com.kma.securechatapp.core.api.model.Conversation;
 import com.kma.securechatapp.core.api.model.UserInfo;
+import com.kma.securechatapp.core.service.RealtimeServiceConnection;
 
+import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class UserProfileViewModel extends ViewModel {
+    public  interface UploadAvatarListener{
+        public void onSuccess(String url);
+        public void onFalse(int code,String message);
+    }
     ApiInterface api = ApiUtil.getChatApi();
     private MutableLiveData<UserInfo> userInfo  = new MutableLiveData<UserInfo> ();
     private MutableLiveData<Boolean> hasContact =  new MutableLiveData<Boolean>();
@@ -116,6 +125,25 @@ public class UserProfileViewModel extends ViewModel {
 
             }
         });
+    }
+    public void uploadAvatar(MultipartBody.Part part, UploadAvatarListener listenr){
+
+        api.uploadAvatar(part).enqueue(new Callback<ApiResponse<String>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<String>> call, Response<ApiResponse<String>> response) {
+                if (response.body() == null || response.body().data == null){
+                    listenr.onFalse(1,"Upload image error!!");
+                    return;
+                }
+                listenr.onSuccess(response.body().data);
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<String>> call, Throwable t) {
+                listenr.onFalse(1,"Upload image error!!");
+            }
+        });
+
     }
 
 }

@@ -99,9 +99,9 @@ public class RealtimeServiceConnection {
         }
         return false;
     }
-    public boolean send(int type,String message, String thread, List<UserInfo> users ){
+    public boolean send(int type,String message, String thread, byte[]key ){
         if (this.mService != null) {
-            return mService.sendMessage(type, message, thread, null, users);
+            return mService.sendMessage(type, message, thread, null, key);
         }
         return false;
     }

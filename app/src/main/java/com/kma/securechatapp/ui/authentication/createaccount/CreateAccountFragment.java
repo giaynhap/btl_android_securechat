@@ -23,8 +23,6 @@ import com.kma.securechatapp.R;
 public class CreateAccountFragment extends Fragment {
 
     FragmentManager fm;
-    public static  CreateAccountValidateFragment create1 = new CreateAccountValidateFragment();
-    public static  CreateAccountValidateFragment create2 = new CreateAccountValidateFragment();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,7 +38,8 @@ public class CreateAccountFragment extends Fragment {
 
         View root = inflater.inflate(R.layout.fragment_create_account, container, false);
         fm = getFragmentManager();
-       
+
+
 
         return root;
     }

@@ -32,25 +32,31 @@ public class SecureChatSystem {
         }
         return _instance;
     }
-    public List<MessagePlaneText> decoder(List<Message> messages){
+    public List<MessagePlaneText> decoder(List<Message> messages,byte []key){
 
 
         List<MessagePlaneText> messagePlaneTexts = new ArrayList<>();
         for (Message msg:messages){
-            MessagePlaneText plt = decode(msg);
+            MessagePlaneText plt = decode(msg,key);
             messagePlaneTexts.add(plt);
         }
         return messagePlaneTexts;
     }
 
-    public MessagePlaneText decode (Message message){
+    public MessagePlaneText decode (Message message,byte[]key){
         if (message== null){
             return null;
         }
         MessagePlaneText result = new MessagePlaneText();
-        result.conversation = message.conversation;
+        result.threadName = message.threadName;
         result.deviceCode = message.deviceCode;
-        result.mesage = decode(message.payload);
+        if (key != null) {
+            result.mesage = decode(message.payload, key);
+            result.encrypted = false;
+        }else{
+            result.encrypted = true;
+            result.mesage = message.payload;
+        }
         result.sender = message.sender;
         result.senderUuid = message.senderUuid;
         result.threadUuid = message.threadUuid;
@@ -59,6 +65,7 @@ public class SecureChatSystem {
         result.uuid = message.uuid;
         result.userUuid = message.userUuid;
 
+
         return result;
     }
 
@@ -66,28 +73,22 @@ public class SecureChatSystem {
 
         return new String(payload);
     }
-    public String decode (String payload){
-        List<UserCryMessage> msgs = new Gson().fromJson(payload,new TypeToken<List<UserCryMessage>>(){}.getType() );
-        String msg = null;
-        for (UserCryMessage m : msgs ){
-           if ( m.uuid.equals(AppData.getInstance().currentUser.uuid) ){
-               msg = m.message;
-           }
-        }
+    public String decode (String payload, byte[] key){
+
         try {
-            return RSAUtil.RSADecrypt(RSAUtil.base64Decode(msg), AppData.getInstance().getPrivateKey());
+           return AES.decrypt(RSAUtil.base64Decode(payload),key);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public String encode(String mesage, PublicKey publicKey){
+    public String encode(String mesage, byte[] key){
         if (mesage == null){
             mesage = "";
         }
         try {
-            return RSAUtil.base64Encode( RSAUtil.RSAEncrypt( mesage, publicKey ) );
+            return RSAUtil.base64Encode( AES.encrypt( mesage, key ) );
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -95,12 +96,13 @@ public class SecureChatSystem {
         return "";
     }
 
-    public Message encode(MessagePlaneText message){
+    public Message encode(MessagePlaneText message,byte[]key){
         Message enc = new Message();
 
         enc.deviceCode = message.deviceCode;
-        enc.conversation = message.conversation;
+        enc.threadName = message.threadName;
         enc.type = message.type;
+        enc.payload = encode(message.mesage,key);
         enc.userUuid = message.userUuid;
         enc.threadUuid = message.threadUuid;
         enc.time = message.time;

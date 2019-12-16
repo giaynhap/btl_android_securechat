@@ -1,9 +1,12 @@
 package com.kma.securechatapp.ui.conversation;
 
+import android.widget.Toast;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.kma.securechatapp.core.AppData;
 import com.kma.securechatapp.core.api.ApiInterface;
 import com.kma.securechatapp.core.api.ApiUtil;
 import com.kma.securechatapp.core.api.model.ApiResponse;
@@ -11,9 +14,22 @@ import com.kma.securechatapp.core.api.model.Conversation;
 import com.kma.securechatapp.core.api.model.Message;
 import com.kma.securechatapp.core.api.model.MessagePlaneText;
 import com.kma.securechatapp.core.api.model.PageResponse;
+import com.kma.securechatapp.core.api.model.UserConversation;
+import com.kma.securechatapp.core.api.model.UserInfo;
+import com.kma.securechatapp.core.security.RSAUtil;
 import com.kma.securechatapp.core.security.SecureChatSystem;
+import com.kma.securechatapp.core.service.RealtimeServiceConnection;
 
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -24,7 +40,7 @@ public class InboxViewModel extends ViewModel {
     private String conversationUuid;
     private Conversation conversation;
     long lastTime;
-
+    public byte[]key;
     int numPage = 1;
     int curenPage = 0;
     private MutableLiveData<List<MessagePlaneText>> listMessage;
@@ -43,6 +59,9 @@ public class InboxViewModel extends ViewModel {
         return this.listMessage;
     }
     public void trigerNewMessage(MessagePlaneText newMessage){
+        if (newMessage.encrypted){
+            newMessage.mesage = SecureChatSystem.getInstance().decode(newMessage.mesage,key);
+        }
         message.setValue(newMessage);
        // cache.add(0,newMessage);
     }
@@ -59,7 +78,7 @@ public class InboxViewModel extends ViewModel {
                     return;
                 }
 
-                List<MessagePlaneText> messages = SecureChatSystem.getInstance().decoder(response.body().data);
+                List<MessagePlaneText> messages = SecureChatSystem.getInstance().decoder(response.body().data, key);
                 if (cache == null){
                     cache = messages;
                 }else{
@@ -88,6 +107,19 @@ public class InboxViewModel extends ViewModel {
                 if (response.body() != null) {
                     conversation = response.body().data;
                     conversationInfo.setValue(conversation);
+                    String ukey = conversation.getKey(AppData.getInstance().currentUser.uuid);
+                    if (ukey == null){
+                        makeKey();
+                    }else{
+                        try {
+                            key = RSAUtil.RSADecryptBuffer(RSAUtil.base64Decode(ukey),AppData.getInstance().getPrivateKey());
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
 
                 }else{
                     conversationInfo.setValue(null);
@@ -98,6 +130,30 @@ public class InboxViewModel extends ViewModel {
                 conversationInfo.setValue(null);
             }
         });
+    }
+    public void makeKey(){
+        KeyGenerator keyGen = null;
+        try {
+            keyGen = KeyGenerator.getInstance("AES");
+            keyGen.init(256);
+            SecretKey secretKey = keyGen.generateKey();
+            byte[] buffKey = secretKey.getEncoded();
+
+            List<UserConversation> keys = new ArrayList<UserConversation>();
+            for (UserInfo u : conversation.users){
+                UserConversation uc = new UserConversation();
+                uc.key =  RSAUtil.base64Encode(RSAUtil.RSAEncrypt(buffKey,u.getPublicKey()));
+                uc.userUuid = u.uuid;
+                keys.add(uc);
+            }
+            api.updateKey(conversation.UUID,keys).execute();
+            key = buffKey;
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void loadMore(){
@@ -114,6 +170,11 @@ public class InboxViewModel extends ViewModel {
     }
     public Conversation getConversation(){
         return this.conversation;
+    }
+
+    public boolean send(int type,String message,String uuid){
+       return RealtimeServiceConnection.getInstance().send(type,message,uuid,key);
+
     }
 
 }

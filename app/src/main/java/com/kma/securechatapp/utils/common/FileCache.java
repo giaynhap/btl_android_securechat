@@ -8,16 +8,22 @@ public class FileCache {
     private File cacheDir;
 
     public FileCache(Context context){
-       try {
-          /* if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED))
-               cacheDir = new File(android.os.Environment.getExternalStorageDirectory(), "TTImages_cache");
-           else*/
-               cacheDir = context.getCacheDir();
-           if (!cacheDir.exists())
-               cacheDir.mkdirs();
-       }catch (Exception e){
-           e.printStackTrace();
-       }
+        cacheDir = getCacheFolder(context);
+    }
+
+    public static File  getCacheFolder(Context context){
+        File cacheDir = null;
+        try {
+           /* if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED))
+                cacheDir = new File(android.os.Environment.getExternalStorageDirectory(), "SecureChat");
+            else*/
+                cacheDir = context.getCacheDir();
+            if (!cacheDir.exists())
+                cacheDir.mkdirs();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return cacheDir;
     }
 
     public File getFile(String url){

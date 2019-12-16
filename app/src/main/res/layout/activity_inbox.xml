@@ -6,6 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffffff"
+    android:id="@+id/chat_main_layout"
+
     tools:context="com.kma.securechatapp.ui.conversation.InboxActivity">
 
 
@@ -17,24 +19,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"></androidx.appcompat.widget.Toolbar>
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/load_more"
+    <fragment
+        android:id="@+id/fragment_chat"
+        class="com.kma.securechatapp.ui.conversation.Inbox.ChatFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        app:defaultNavHost="true"
         android:layout_marginBottom="20dp"
         app:layout_constraintBottom_toTopOf="@+id/layout_upload"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/message_toolbar">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/reyclerview_message_list"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-
-            />
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
+        app:layout_constraintTop_toBottomOf="@+id/message_toolbar" />
     <LinearLayout
         android:padding="5dp"
         android:id="@+id/layout_upload"
@@ -77,13 +72,29 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent">
-        <ImageView
-            android:id="@+id/btn_image"
-            android:padding="5dp"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_photo_size_select_actual_black_24dp"
-            />
+        <LinearLayout
+            android:id="@+id/layout_media"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:alpha="0.5"
+                android:id="@+id/btn_image"
+                android:padding="5dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_photo_size_select_actual_black_24dp"
+                />
+            <ImageView
+                android:alpha="0.5"
+                android:id="@+id/btn_audio"
+                android:padding="5dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_mic_black_24dp"
+                />
+
+        </LinearLayout>
         <EditText
             android:id="@+id/edittext_chatbox"
             android:hint="Enter message"
@@ -110,17 +121,40 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/panel_audio"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="52dp"
+        android:background="@drawable/bg_button_corners"
+        app:layout_constraintBottom_toTopOf="@+id/view3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        android:gravity="center"
+        app:layout_constraintStart_toStartOf="parent">
+        <ImageView
+            android:src="@drawable/ic_mic_black_24dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"/>
+        <TextView
+            android:textColor="#ffffff"
+            android:text="Touch to send"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
     <TextView
         android:id="@+id/process_label"
-        android:textColor="#db9ed3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="decripting ..."
         android:background="#f0f3ff"
         android:paddingHorizontal="50dp"
+        android:text="decripting ..."
+        android:textColor="#db9ed3"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/load_more"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/message_toolbar" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

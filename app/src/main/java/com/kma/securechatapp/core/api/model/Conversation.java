@@ -24,8 +24,14 @@ public class Conversation {
     @SerializedName( "users" )
     public List<UserInfo> users;
 
+    @SerializedName( "userConversations" )
+    public List<UserConversation> userConversations;
+
     @SerializedName("last_message")
     public String lastMessage;
+
+    @SerializedName("un_read")
+    public Integer unRead;
 
     public Conversation(String UUID, String user_uuid, String name) {
         this.UUID = UUID;
@@ -55,4 +61,16 @@ public class Conversation {
            return false;
        }
     }
+    public String getKey(String uuid){
+        for (UserConversation u : userConversations){
+            if (u.userUuid.equals(uuid)){
+                if (u.key == null || u.key.isEmpty()){
+                    return null;
+                }
+                return u.key;
+            }
+        }
+        return null;
+    }
 }
+

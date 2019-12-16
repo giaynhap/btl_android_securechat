@@ -35,8 +35,8 @@ public class Message  implements Serializable {
     @SerializedName("sender")
     public UserInfo sender;
 
-    @SerializedName("conversation")
-    public  Conversation conversation;
+    @SerializedName("thread_name")
+    public  String threadName ;
 
     public String getUuid() {
         return uuid;
@@ -118,11 +118,4 @@ public class Message  implements Serializable {
         this.sender = sender;
     }
 
-    public Conversation getConversation() {
-        return conversation;
-    }
-
-    public void setConversation(Conversation conversation) {
-        this.conversation = conversation;
-    }
 }
