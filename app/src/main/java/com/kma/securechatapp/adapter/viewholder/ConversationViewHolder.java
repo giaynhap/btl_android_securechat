@@ -68,7 +68,7 @@ public class ConversationViewHolder extends RecyclerView.ViewHolder {
     public void setTime(Long time){
         if (time == null)
             return;
-        this.txtTime.setText( StringHelper.getLongTimeText(time));
+        this.txtTime.setText( StringHelper.getLongTextChat(time));
 
 
     }
@@ -80,8 +80,8 @@ public class ConversationViewHolder extends RecyclerView.ViewHolder {
             online.setVisibility(GONE);
         }
     }
-    public void setNumUnRead(int unread){
-        if (unread < 1){
+    public void setNumUnRead(Integer unread){
+        if (unread == null ||unread < 1){
             txtUnRead.setVisibility(GONE);
         }else{
             txtUnRead.setVisibility(View.VISIBLE);

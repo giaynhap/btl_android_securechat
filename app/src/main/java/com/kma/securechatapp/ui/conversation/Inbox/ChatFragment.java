@@ -84,6 +84,7 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         recyclerView.setHasFixedSize(true);
         refreshLayout.setOnRefreshListener(this);
 
+
         return root;
     }
 

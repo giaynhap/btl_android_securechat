@@ -13,8 +13,8 @@ android {
     }
     buildTypes {
         debug {
-            buildConfigField "String", "HOST", "\"http://192.168.44.104:8082/\""
-            buildConfigField "String", "WS_FULL_PATH", "\"ws://192.168.44.104:8082/ws/websocket\""
+            buildConfigField "String", "HOST", "\"http://192.168.1.223:8082/\""
+            buildConfigField "String", "WS_FULL_PATH", "\"ws://192.168.1.223:8082/ws/websocket\""
 
         }
 
@@ -26,8 +26,6 @@ android {
         }
 
         debug_online {
-            debuggable true
-            applicationIdSuffix ".debug"
             signingConfig signingConfigs.debug
             buildConfigField "String", "HOST", "\"http://124.158.6.221:8082/\""
             buildConfigField "String", "WS_FULL_PATH", "\"ws://124.158.6.221:8082/ws/websocket\""

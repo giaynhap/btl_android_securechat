@@ -17,6 +17,7 @@ import com.kma.securechatapp.MainActivity;
 import com.kma.securechatapp.R;
 import com.kma.securechatapp.adapter.ContactAdapter;
 import com.kma.securechatapp.core.api.model.Contact;
+import com.kma.securechatapp.core.event.EventBus;
 import com.kma.securechatapp.ui.profile.UserProfileActivity;
 import com.kma.securechatapp.utils.misc.EndlessRecyclerOnScrollListener;
 import com.kma.securechatapp.utils.misc.RecyclerItemClickListener;
@@ -35,6 +36,8 @@ public class ContactListFragment extends Fragment implements SwipeRefreshLayout.
 
     @BindView(R.id.contact_swipcontainer)
     SwipeRefreshLayout swipeRefreshLayout;
+
+    EventBus.EvenBusAction evenBus;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         contactViewModel =
@@ -90,9 +93,19 @@ public class ContactListFragment extends Fragment implements SwipeRefreshLayout.
                     }
                 })
         );
+        registerEvent();
         return root;
     }
+    void registerEvent(){
+        evenBus = new EventBus.EvenBusAction() {
+            @Override
+            public void onRefreshContact() {
+                contactViewModel.trigerLoadData(0);
+            }
+        };
+        EventBus.getInstance().addEvent(evenBus);
 
+    }
     @Override
     public void onRefresh() {
         endlessRecyclerOnScrollListener.reset();
@@ -116,5 +129,12 @@ public class ContactListFragment extends Fragment implements SwipeRefreshLayout.
     void loadMore(int page){
         swipeRefreshLayout.setRefreshing(true);
         contactViewModel.trigerLoadData(page);
+    }
+    @Override
+    public void onDetach() {
+        if (evenBus != null);
+        EventBus.getInstance().removeEvent(evenBus);
+
+        super.onDetach();
     }
 }

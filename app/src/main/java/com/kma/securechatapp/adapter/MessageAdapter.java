@@ -12,11 +12,14 @@ import com.kma.securechatapp.core.AppData;
 import com.kma.securechatapp.R;
 import com.kma.securechatapp.adapter.viewholder.MessageSenderViewHolder;
 import com.kma.securechatapp.core.api.model.MessagePlaneText;
+import com.kma.securechatapp.utils.common.StringHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MessageAdapter extends   RecyclerView.Adapter {
     List<MessagePlaneText> messages;
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -38,6 +41,11 @@ public class MessageAdapter extends   RecyclerView.Adapter {
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.item_audio_sent, parent, false);
                 return new MessageSenderViewHolder(view);
+            case 30:
+
+                view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_sticker_sent, parent, false);
+                return new MessageSenderViewHolder(view);
             case 11:
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.item_image_received, parent, false);
@@ -49,6 +57,10 @@ public class MessageAdapter extends   RecyclerView.Adapter {
             case 21:
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.item_audio_received, parent, false);
+                return new MessageReceivederViewHolder(view);
+            case 31:
+                view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_sticker_received, parent, false);
                 return new MessageReceivederViewHolder(view);
 
         }
@@ -69,6 +81,9 @@ public class MessageAdapter extends   RecyclerView.Adapter {
             else if (message.type == 2){
                 return 20;
             }
+            else if (message.type == 3){
+                return 30;
+            }
         } else {
             // If some other user sent the message
             if (message.type==0)
@@ -78,17 +93,43 @@ public class MessageAdapter extends   RecyclerView.Adapter {
             else if (message.type == 2){
                 return 21;
             }
+            else if (message.type == 3 ){
+                return 31;
+            }
         }
         return 0;
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-         if (holder.getItemViewType() == 1|| holder.getItemViewType() == 11|| holder.getItemViewType()==21){
-             ((MessageReceivederViewHolder)holder).bind(messages.get(position));
+        boolean hide = false;
+        boolean showTime = false;
+        if (position < messages.size()-1 ){
+            MessagePlaneText msg1 = messages.get(position);
+            MessagePlaneText msg2 = messages.get(position+1);
+            if(msg1.senderUuid.equals(msg2.senderUuid) &&
+                    StringHelper.checkSameDay(msg1.time,msg2.time)
+            ){
+                hide = true;
+            }
+            if ( !StringHelper.checkSameDay(msg1.time,msg2.time)){
+                showTime = true;
+            }
+        }else{
+            showTime = true;
+        }
+
+         if (holder.getItemViewType() == 1|| holder.getItemViewType() == 11|| holder.getItemViewType()==21|| holder.getItemViewType()==31){
+             ((MessageReceivederViewHolder)holder).bind(messages.get(position),hide);
+             if (showTime)
+                 ((MessageReceivederViewHolder)holder).showLongTime();
+
          }else{
-             ((MessageSenderViewHolder)holder).bind(messages.get(position));
+             ((MessageSenderViewHolder)holder).bind(messages.get(position),hide);
+             if (showTime)
+                 ((MessageSenderViewHolder)holder).showLongTime();
          }
+
     }
 
     @Override

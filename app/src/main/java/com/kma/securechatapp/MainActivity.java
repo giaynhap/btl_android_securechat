@@ -25,6 +25,7 @@ import com.kma.securechatapp.core.event.EventBus;
 import com.kma.securechatapp.core.service.DataService;
 import com.kma.securechatapp.core.service.RealtimeService;
 import com.kma.securechatapp.core.service.RealtimeServiceConnection;
+import com.kma.securechatapp.ui.about.AboutActivity;
 import com.kma.securechatapp.ui.authentication.KeyPasswordActivity;
 import com.kma.securechatapp.ui.authentication.LoginActivity;
 import com.kma.securechatapp.ui.contact.ContactAddActivity;
@@ -207,6 +208,8 @@ public class MainActivity extends AppCompatActivity {
                     });
                     LoginActivity.showInputPass(MainActivity.this,api);
                     bindLeftHeader();
+                    EventBus.getInstance().pushOnRefreshConversation();
+                    EventBus.getInstance().pushOnRefreshContact();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -223,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent2);
 
             }
+
         };
         EventBus.getInstance().addEvent(evenBus);
 
@@ -243,6 +247,10 @@ public class MainActivity extends AppCompatActivity {
 
                             case R.id.menu_item_logout:
                                logout();
+                                break;
+                            case R.id.menu_item_about:
+                                Intent intent = new Intent(MainActivity.this, AboutActivity.class);
+                                startActivity(intent);
                                 break;
                         }
 

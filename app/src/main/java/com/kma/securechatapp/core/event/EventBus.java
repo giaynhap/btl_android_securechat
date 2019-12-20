@@ -35,6 +35,9 @@ public class EventBus {
     public void addEvent(EvenBusAction action){
             this.evenBusActions.add(action);
     }
+    public void removeEvent(EvenBusAction action){
+        this.evenBusActions.remove(action);
+    }
     public void pushOnRefreshContact(){
         for (EvenBusAction eventBus:evenBusActions){
             eventBus.onRefreshConversation();

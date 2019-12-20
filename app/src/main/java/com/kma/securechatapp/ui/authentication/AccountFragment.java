@@ -72,6 +72,7 @@ public class AccountFragment extends Fragment {
                 }
 
                 AppData.getInstance().currentUser = response.body().data;
+
                 navController.navigate(R.id.navigation_password);
 
             }

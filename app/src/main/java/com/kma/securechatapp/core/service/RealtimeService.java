@@ -149,7 +149,7 @@ public class RealtimeService extends Service {
                             break;
 
                     }
-                });
+                },throwable -> Log.e(TAG, "Throwable " + throwable.getMessage())  );
 
     }
 
@@ -188,7 +188,7 @@ public class RealtimeService extends Service {
                                         break;
                                 }
 
-                            });
+                            },  throwable -> Log.e(TAG, "Throwable " + throwable.getMessage()));
 
                 }
 

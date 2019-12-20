@@ -30,6 +30,9 @@ public class ImageLoader {
     FileCache fileCache;
     private Map<ImageView, String> imageViews=Collections.synchronizedMap(new WeakHashMap<ImageView, String>());
     ExecutorService executorService;
+    public interface OnLoadedBitmap{
+            public void onBitmap(Bitmap bm);
+    }
 
     public static ImageLoader getInstance(){
 
@@ -67,6 +70,19 @@ public class ImageLoader {
         {
             queuePhoto(url, imageView,reload);
             imageView.setImageResource(stub_id);
+        }
+    }
+    public void loadBitmap(String url,OnLoadedBitmap onload,boolean reload){
+        Bitmap bitmap= null;
+        if (!reload) {
+            bitmap = memoryCache.get(url);
+        }
+        if(bitmap!=null)
+            onload.onBitmap(bitmap);
+        else {
+            Bitmap bmp=getBitmap(url,reload);
+            memoryCache.put(url, bmp);
+            onload.onBitmap(bmp);
         }
     }
 
@@ -202,5 +218,7 @@ public class ImageLoader {
     public static String getUserAvatarUrl(String uuid,int width,int height){
         return BuildConfig.HOST +"users/avatar/"+uuid+"?width="+width+"&height="+height;
     }
-
+    public static String getStickerUrl(String model,int index){
+        return BuildConfig.HOST +"sticker/"+model+"/"+index;
+    }
 }

@@ -16,6 +16,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.kma.securechatapp.R;
 import com.kma.securechatapp.adapter.ConversationAdapter;
 import com.kma.securechatapp.core.api.model.Conversation;
+import com.kma.securechatapp.core.event.EventBus;
 import com.kma.securechatapp.utils.misc.EndlessRecyclerOnScrollListener;
 import com.kma.securechatapp.utils.misc.RecyclerItemClickListener;
 
@@ -32,6 +33,8 @@ public class ConversationListFragment extends Fragment implements SwipeRefreshLa
 
     @BindView(R.id.conversation_swipcontainer)
     SwipeRefreshLayout swipeRefreshLayout;
+
+    EventBus.EvenBusAction evenBus;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -88,11 +91,30 @@ public class ConversationListFragment extends Fragment implements SwipeRefreshLa
             swipeRefreshLayout.setRefreshing(false);
         });
 
+        registerEvent();
         return root;
+    }
+    void registerEvent(){
+        evenBus = new EventBus.EvenBusAction() {
+            @Override
+            public void onRefreshConversation() {
+                conversationListViewModel.trigerLoadData(0);
+            }
+        };
+        EventBus.getInstance().addEvent(evenBus);
+
     }
 
     @Override
     public void onRefresh() {
         conversationListViewModel.trigerLoadData(0);
+    }
+
+    @Override
+    public void onDetach() {
+        if (evenBus != null);
+        EventBus.getInstance().removeEvent(evenBus);
+
+        super.onDetach();
     }
 }

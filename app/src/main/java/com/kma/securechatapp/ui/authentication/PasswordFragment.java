@@ -11,6 +11,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -29,6 +30,7 @@ import com.kma.securechatapp.core.service.DataService;
 import com.kma.securechatapp.core.service.RealtimeService;
 import com.kma.securechatapp.core.service.RealtimeServiceConnection;
 import com.kma.securechatapp.helper.CommonHelper;
+import com.kma.securechatapp.utils.common.ImageLoader;
 
 import java.io.IOException;
 
@@ -50,6 +52,8 @@ public class PasswordFragment extends Fragment {
     LinearLayout optLayout;
     @BindView(R.id.opt_input)
     TextInputEditText optInput;
+    @BindView(R.id.login_avatar)
+    ImageView loginAvatar;
 
     NavController navController;
     boolean checkopt = false;
@@ -63,6 +67,7 @@ public class PasswordFragment extends Fragment {
         optLayout.setVisibility(View.GONE);
         NavController navController = NavHostFragment.findNavController(this);
         CheckOpt();
+        ImageLoader.getInstance().DisplayImage(ImageLoader.getUserAvatarUrl(AppData.getInstance().currentUser.uuid,200,200),loginAvatar);
         return root;
     }
 

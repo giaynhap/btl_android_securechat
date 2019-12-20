@@ -6,6 +6,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -22,7 +23,9 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -38,6 +41,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.kma.securechatapp.BuildConfig;
 import com.kma.securechatapp.R;
 import com.kma.securechatapp.adapter.MessageAdapter;
 import com.kma.securechatapp.core.AppData;
@@ -54,7 +58,10 @@ import com.kma.securechatapp.core.service.RealtimeServiceConnection;
 import com.kma.securechatapp.core.service.ServiceAction;
 import com.kma.securechatapp.ui.contact.ContactAddViewModel;
 import com.kma.securechatapp.ui.conversation.Inbox.ChatFragment;
+import com.kma.securechatapp.ui.conversation.Inbox.StickerFragment;
 import com.kma.securechatapp.utils.common.AudioRecorder;
+import com.kma.securechatapp.utils.common.ImageLoader;
+import com.kma.securechatapp.utils.misc.CircularImageView;
 
 import java.io.File;
 import java.io.IOException;
@@ -103,12 +110,17 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
 
     @BindView(R.id.panel_audio)
     LinearLayout panelAudio;
-    AudioRecorder recoder  = null;
 
+    @BindView(R.id.fragment_bottom)
+    View fragmentBottom;
+    AudioRecorder recoder  = null;
+    FragmentManager fm;
 
     public ChatFragment.ChatUiEvent uiEvent = null;
     String uuid ;
     private InboxViewModel inboxViewModel ;
+
+    boolean isShowSticker = false;
 
     SocketReceiver receiver = new SocketReceiver();
     @Override
@@ -145,6 +157,12 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
             }
             toolbar.setTitle(conversation.name);
             inboxViewModel.trigerLoadMessage(0);
+            // toolbar.setImageURI()
+            ImageLoader.getInstance().loadBitmap(BuildConfig.HOST + "conversation/thumb/" + conversation.UUID + "/" + AppData.getInstance().currentUser.uuid + "?width=80&height=80",bm -> {
+
+                toolbar.setLogo(new BitmapDrawable(getResources(), CircularImageView.getRoundBitmap(bm,bm.getWidth())));
+
+            },false);
 
         });
         inboxViewModel.getMessages().observe(this,messages->{
@@ -163,11 +181,19 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
         });
         inboxViewModel.setConversationUuid(uuid);
 
+        fm = getSupportFragmentManager();
+
+
 
         txtStatus.setVisibility(GONE);
         btnSend.setVisibility(GONE);
         panelAudio.setVisibility(GONE);
+        fragmentBottom.setVisibility(GONE);
         register();
+
+
+
+
     }
 
     void register(){
@@ -180,7 +206,18 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
         RealtimeServiceConnection.getInstance().registThreadToSoft(uuid);
         RealtimeServiceConnection.getInstance().sendStatus(MessageCommand.READ,1,uuid);
     }
+    @OnClick(R.id.btn_sticker)
+    public void onClickSticker(View view){
+        isShowSticker = !isShowSticker;
+        if (!isShowSticker)
+        fragmentBottom.setVisibility(GONE);
+        else
+        fragmentBottom.setVisibility(View.VISIBLE);
+    }
 
+    public void sendSticker(String model,int index){
+        inboxViewModel.send(3, model+"::"+index,uuid);
+    }
 
     @OnFocusChange(R.id.edittext_chatbox)
     public void onChatChange(View v, boolean hasFocus) {

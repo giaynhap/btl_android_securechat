@@ -9,6 +9,7 @@ import com.kma.securechatapp.core.api.model.Contact;
 import com.kma.securechatapp.core.api.model.Conversation;
 import com.kma.securechatapp.core.api.model.Message;
 import com.kma.securechatapp.core.api.model.PageResponse;
+import com.kma.securechatapp.core.api.model.Sticker;
 import com.kma.securechatapp.core.api.model.UserConversation;
 import com.kma.securechatapp.core.api.model.UserInfo;
 import com.kma.securechatapp.core.api.model.UserKey;
@@ -106,8 +107,8 @@ public interface ApiInterface {
     @POST("file/audio")
     Call<ApiResponse<String>> uploadAudio( @Part MultipartBody.Part audio);
 
-
-
+    @GET("/sticker/list")
+    Call<ApiResponse<List<Sticker>>> getStikers();
 
 
 

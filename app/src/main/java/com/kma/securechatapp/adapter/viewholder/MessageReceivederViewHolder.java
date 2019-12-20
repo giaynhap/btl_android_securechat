@@ -33,13 +33,15 @@ public class MessageReceivederViewHolder extends RecyclerView.ViewHolder {
     TextView txtName;
     @BindView(R.id.image_message_profile)
     ImageView imgAvatar;
+    @BindView(R.id.msg_time_status)
+    TextView txtLongTime;
 
     public MessageReceivederViewHolder(@NonNull View itemView) {
         super(itemView);
         ButterKnife.bind(this,itemView);
     }
 
-    public void bind (MessagePlaneText msg){
+    public void bind (MessagePlaneText msg, boolean hideIcon){
         if (msg.type == 1) {
             ImageLoader.getInstance().DisplayImage(BuildConfig.HOST +msg.mesage,(ImageView)txtBody);
             txtBody.setOnClickListener(new View.OnClickListener() {
@@ -52,16 +54,46 @@ public class MessageReceivederViewHolder extends RecyclerView.ViewHolder {
         }
         else if (msg.type == 0){
             ((TextView)txtBody).setText(msg.mesage);
-        }else if (msg.type == 2)
+        }
+        else if (msg.type == 2)
         {
             ((AudioUi)txtBody).setUrl(BuildConfig.HOST +msg.mesage);
             ((AudioUi)txtBody).addHeader("Authorization","Bearer "+ AppData.getInstance().getToken());
-
         }
-        txtName.setText(msg.sender.name);
-        txtTime.setText(StringHelper.getTimeText(msg.time));
-        ImageLoader.getInstance().DisplayImage(BuildConfig.HOST +"users/avatar/"+msg.sender.uuid+"?width=32&height=32",imgAvatar);
+        else if (msg.type == 3)
+        {
+            String[] split = msg.mesage.split("::");
+            if (split.length < 2)
+                return;
+            int index = Integer.decode(split[1]);
+            ImageLoader.getInstance().DisplayImage(ImageLoader.getStickerUrl(split[0],index),(ImageView)txtBody);
+        }
+        if (!hideIcon) {
+            txtName.setText(msg.sender.name);
+            txtTime.setText(StringHelper.getTimeText(msg.time));
+            ImageLoader.getInstance().DisplayImage(BuildConfig.HOST + "users/avatar/" + msg.sender.uuid + "?width=32&height=32", imgAvatar);
+        }else{
+            txtName.setVisibility(View.GONE);
+            txtTime.setVisibility(View.GONE);
+            imgAvatar.setVisibility(View.INVISIBLE);
+        }
+        txtTime.setVisibility(View.GONE);
+        if (msg.type != 1){
+            this.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (txtTime.getVisibility() == View.GONE)
+                        txtTime.setVisibility(View.VISIBLE);
+                    else
+                        txtTime.setVisibility(View.GONE);
+                }
+            });
+        }
+        txtLongTime.setText(StringHelper.getLongTextChat(msg.time));
+        txtLongTime.setVisibility(View.GONE);
       //  new ImageLoadTask(,imgAvatar).execute();
-
+    }
+    public void showLongTime(){
+        txtLongTime.setVisibility(View.VISIBLE);
     }
 }

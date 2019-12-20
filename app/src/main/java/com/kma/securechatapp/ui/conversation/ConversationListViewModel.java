@@ -59,8 +59,6 @@ public class ConversationListViewModel extends ViewModel {
             public void onFailure(Call<ApiResponse<PageResponse<Conversation>>> call, Throwable t) {
 
 
-
-
             }
         });
     }

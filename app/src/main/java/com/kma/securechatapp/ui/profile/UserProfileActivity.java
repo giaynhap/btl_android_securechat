@@ -25,6 +25,7 @@ import com.kma.securechatapp.R;
 import com.kma.securechatapp.core.AppData;
 import com.kma.securechatapp.core.api.model.ApiResponse;
 import com.kma.securechatapp.core.api.model.UserInfo;
+import com.kma.securechatapp.core.event.EventBus;
 import com.kma.securechatapp.core.service.RealtimeServiceConnection;
 import com.kma.securechatapp.helper.ImageLoadTask;
 import com.kma.securechatapp.ui.conversation.InboxActivity;
@@ -158,6 +159,7 @@ public class UserProfileActivity extends AppCompatActivity {
             }else{
                 userProfileViewModel.addContact(uuid);
             }
+        EventBus.getInstance().pushOnRefreshContact();
     }
     @OnClick(R.id.profile_btn_message)
     void onClickMessage(View view){

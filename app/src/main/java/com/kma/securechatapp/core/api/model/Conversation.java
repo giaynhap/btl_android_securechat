@@ -62,6 +62,8 @@ public class Conversation {
        }
     }
     public String getKey(String uuid){
+        if (userConversations == null)
+            return null;
         for (UserConversation u : userConversations){
             if (u.userUuid.equals(uuid)){
                 if (u.key == null || u.key.isEmpty()){
