@@ -40,7 +40,7 @@
            <TextView
                android:visibility="gone"
                android:id="@+id/contact_online"
-               android:background="#00cc00"
+               android:background="@drawable/circle_green"
                android:gravity="right"
                android:layout_width="12dp"
                android:layout_height="12dp"/>

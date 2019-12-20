@@ -6,9 +6,18 @@
 
     <com.kma.securechatapp.utils.misc.CircularImageView
         android:id="@+id/login_avatar"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:src="@drawable/app_icon"
+        app:layout_constraintBottom_toTopOf="@+id/login_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/login_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="name"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -96,7 +105,6 @@
 
         android:paddingHorizontal="60dp"
         android:text="Forgot password"
-        android:textColor="@color/colorTextPrimary"
         android:textSize="12dip"
 
         app:layout_constraintBottom_toTopOf="@+id/textView3"

@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
@@ -54,6 +55,8 @@ public class PasswordFragment extends Fragment {
     TextInputEditText optInput;
     @BindView(R.id.login_avatar)
     ImageView loginAvatar;
+    @BindView(R.id.login_name)
+    TextView loginName;
 
     NavController navController;
     boolean checkopt = false;
@@ -68,6 +71,7 @@ public class PasswordFragment extends Fragment {
         NavController navController = NavHostFragment.findNavController(this);
         CheckOpt();
         ImageLoader.getInstance().DisplayImage(ImageLoader.getUserAvatarUrl(AppData.getInstance().currentUser.uuid,200,200),loginAvatar);
+        loginName.setText(AppData.getInstance().currentUser.name);
         return root;
     }
 
