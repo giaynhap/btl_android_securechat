@@ -68,8 +68,8 @@ public class MessageSenderViewHolder extends RecyclerView.ViewHolder {
         txtLongTime.setText(StringHelper.getLongTextChat(msg.time));
         txtLongTime.setVisibility(View.GONE);
 
-        if (msg.type != 1){
-            this.itemView.setOnClickListener(new View.OnClickListener() {
+        if (msg.type != 1 && msg.type != 2){
+            this.txtBody.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (txtTime.getVisibility() == View.GONE)
