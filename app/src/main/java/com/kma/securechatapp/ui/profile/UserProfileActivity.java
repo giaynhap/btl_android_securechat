@@ -64,6 +64,9 @@ public class UserProfileActivity extends AppCompatActivity {
     @BindView(R.id.profile_address)
     TextView profileAddress;
 
+    @BindView(R.id.profile_phone)
+    TextView profilePhone;
+
     @BindView(R.id.profile_toolbar)
     Toolbar toolbar;
 
@@ -149,7 +152,22 @@ public class UserProfileActivity extends AppCompatActivity {
 
         ImageLoader.getInstance().DisplayImage(ImageLoader.getUserAvatarUrl(uuid,200,200),avartar);
         profileName.setText(info.name);
-        profileAddress.setText(info.address);
+        if (info.address == null) {
+            profileAddress.setText(" N/a");
+        }
+        else{
+            profileAddress.setText(info.address);
+        }
+        if (info.phone == null){
+
+            profilePhone.setText(" N/a");
+        }else {
+            profilePhone.setText(info.phone);
+        }
+
+        if (info.getPublicKey() == null){
+            btnMessage.setVisibility(View.GONE);
+        }
     }
 
     @OnClick(R.id.profile_btn_add_del_contact)

@@ -18,6 +18,8 @@ public class UserInfo {
   public Long dob;
   @SerializedName("publickey")
   public String publicKey;
+  @SerializedName("phone")
+  public String phone;
 
   @SerializedName("online")
   public boolean online;
@@ -35,11 +37,14 @@ public class UserInfo {
   public PublicKey getPublicKey(){
     if (_publicKey == null){
       try {
+
         _publicKey = RSAUtil.stringToPublicKey(publicKey);
       } catch (NoSuchAlgorithmException e) {
         e.printStackTrace();
       } catch (InvalidKeySpecException e) {
         e.printStackTrace();
+      } catch (Exception e){
+        return null;
       }
     }
     return _publicKey;

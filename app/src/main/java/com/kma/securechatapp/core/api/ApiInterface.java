@@ -110,6 +110,11 @@ public interface ApiInterface {
     @GET("/sticker/list")
     Call<ApiResponse<List<Sticker>>> getStikers();
 
+    @GET("/users/suggest")
+    Call<ApiResponse<List<UserInfo>>> getSuggestList();
+
+
+
 
 
 }
