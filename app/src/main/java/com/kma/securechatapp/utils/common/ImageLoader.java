@@ -53,7 +53,11 @@ public class ImageLoader {
     final int stub_id= R.mipmap.ic_launcher;
     public void DisplayImage(String url, ImageView imageView)
     {
-        DisplayImage(url,imageView,false);
+        try {
+            DisplayImage(url, imageView, false);
+        }catch (Exception e){
+
+        }
     }
 
     public void DisplayImage(String url, ImageView imageView,boolean reload)
@@ -61,9 +65,13 @@ public class ImageLoader {
 
         imageViews.put(imageView, url);
         Bitmap bitmap= null;
-        if (!reload) {
-            bitmap = memoryCache.get(url);
+
+        bitmap = memoryCache.get(url);
+        if (reload && bitmap != null) {
+            imageView.setImageBitmap(bitmap);
+            bitmap = null;
         }
+
         if(bitmap!=null)
             imageView.setImageBitmap(bitmap);
         else
@@ -128,13 +136,11 @@ public class ImageLoader {
     //decodes image and scales it to reduce memory consumption
     private Bitmap decodeFile(File f){
         try {
-            //decode image size
             BitmapFactory.Options o = new BitmapFactory.Options();
             o.inJustDecodeBounds = true;
             BitmapFactory.decodeStream(new FileInputStream(f),null,o);
 
-            //Find the correct scale value. It should be the power of 2.
-            final int REQUIRED_SIZE=70;
+            final int REQUIRED_SIZE=1024;
             int width_tmp=o.outWidth, height_tmp=o.outHeight;
             int scale=1;
             while(true){
@@ -187,9 +193,13 @@ public class ImageLoader {
     }
 
     boolean imageViewReused(PhotoToLoad photoToLoad){
-        String tag=imageViews.get(photoToLoad.imageView);
-        if(tag==null || !tag.equals(photoToLoad.url))
-            return true;
+        try {
+            String tag = imageViews.get(photoToLoad.imageView);
+            if (tag == null || !tag.equals(photoToLoad.url))
+                return true;
+        }catch (Exception e){
+
+        }
         return false;
     }
 

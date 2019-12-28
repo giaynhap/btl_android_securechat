@@ -190,7 +190,10 @@ public class MainActivity extends AppCompatActivity {
             public void onNetworkStateChange(int state){
 
             }
-
+            @Override
+            public  void onChangeProfile(){
+                bindLeftHeader();
+            }
             @Override
             public  void onLogin(UserInfo u){
                 try {

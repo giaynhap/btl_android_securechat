@@ -113,7 +113,8 @@ public interface ApiInterface {
     @GET("/users/suggest")
     Call<ApiResponse<List<UserInfo>>> getSuggestList();
 
-
+    @POST("/users/quick/name")
+    Call<ApiResponse<UserInfo>> quickChangeName(@Body  String name);
 
 
 

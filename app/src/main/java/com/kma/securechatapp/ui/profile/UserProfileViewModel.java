@@ -146,4 +146,8 @@ public class UserProfileViewModel extends ViewModel {
 
     }
 
+    public Call<ApiResponse<UserInfo>> quickChangeName(String name){
+        return api.quickChangeName(name);
+    }
+
 }

@@ -42,6 +42,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kma.securechatapp.BuildConfig;
+import com.kma.securechatapp.MainActivity;
 import com.kma.securechatapp.R;
 import com.kma.securechatapp.adapter.MessageAdapter;
 import com.kma.securechatapp.core.AppData;
@@ -59,8 +60,10 @@ import com.kma.securechatapp.core.service.ServiceAction;
 import com.kma.securechatapp.ui.contact.ContactAddViewModel;
 import com.kma.securechatapp.ui.conversation.Inbox.ChatFragment;
 import com.kma.securechatapp.ui.conversation.Inbox.StickerFragment;
+import com.kma.securechatapp.ui.profile.UserProfileActivity;
 import com.kma.securechatapp.utils.common.AudioRecorder;
 import com.kma.securechatapp.utils.common.ImageLoader;
+import com.kma.securechatapp.utils.common.Utils;
 import com.kma.securechatapp.utils.misc.CircularImageView;
 
 import java.io.File;
@@ -80,6 +83,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static android.Manifest.permission.CAMERA;
+import static android.Manifest.permission.INTERNET;
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.RECORD_AUDIO;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.view.View.GONE;
 import static butterknife.OnTextChanged.Callback.BEFORE_TEXT_CHANGED;
 
@@ -210,9 +218,11 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
     public void onClickSticker(View view){
         isShowSticker = !isShowSticker;
         if (!isShowSticker)
-        fragmentBottom.setVisibility(GONE);
-        else
-        fragmentBottom.setVisibility(View.VISIBLE);
+            fragmentBottom.setVisibility(GONE);
+        else {
+            Utils.hideKeyboard(this);
+            fragmentBottom.setVisibility(View.VISIBLE);
+        }
     }
 
     public void sendSticker(String model,int index){
@@ -227,6 +237,10 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
             typing = true;
             mediaLayout.setVisibility(GONE);
             btnSend.setVisibility(View.VISIBLE);
+            if (isShowSticker) {
+                fragmentBottom.setVisibility(GONE);
+                isShowSticker = false;
+            }
         }else{
             RealtimeServiceConnection.getInstance().sendStatus(MessageCommand.TYPING,0,uuid);
             typing = false;
@@ -417,6 +431,19 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
 
     void onChooseImageFile(File file,Uri uri){
 
+
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(), READ_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(this, new String[]
+                    {
+                            READ_EXTERNAL_STORAGE,
+                            WRITE_EXTERNAL_STORAGE
+
+                    }, 1);
+
+        }
+
         RequestBody requestFile =
                 RequestBody.create(MediaType.parse("multipart/form-data"), file);
         MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
@@ -450,7 +477,11 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
             });
         }
         public void onComplete(String url){
+
             uploadLayout.removeView(imageView);
+            if ( url== null){
+                return;
+            }
             if (!inboxViewModel.send(1,url,uuid)){
                 Toast.makeText(InboxActivity.this,"Something error, can't send message",Toast.LENGTH_SHORT).show();
             }

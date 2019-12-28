@@ -1,5 +1,6 @@
 package com.kma.securechatapp.adapter.viewholder;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.view.View;
@@ -14,6 +15,7 @@ import com.kma.securechatapp.MainActivity;
 import com.kma.securechatapp.R;
 import com.kma.securechatapp.core.AppData;
 import com.kma.securechatapp.core.api.model.MessagePlaneText;
+import com.kma.securechatapp.ui.control.ImagePreview;
 import com.kma.securechatapp.utils.common.ImageLoader;
 import com.kma.securechatapp.utils.common.StringHelper;
 import com.kma.securechatapp.utils.misc.AudioUi;
@@ -36,12 +38,15 @@ public class MessageSenderViewHolder extends RecyclerView.ViewHolder {
     }
     public void bind (MessagePlaneText msg,boolean hideIcon){
         if (msg.type == 1) {
-            ImageLoader.getInstance().DisplayImage(BuildConfig.HOST +msg.mesage,(ImageView)txtBody);
+            ImageLoader.getInstance().DisplayImage(BuildConfig.HOST +msg.mesage+"?type=small",(ImageView)txtBody);
             txtBody.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    MainActivity.instance.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.HOST +msg.mesage)));
-
+                   // MainActivity.instance.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.HOST +msg.mesage)));
+                    Context context = MessageSenderViewHolder.this.itemView.getContext();
+                    Intent intent = new Intent( context, ImagePreview.class);
+                    intent.putExtra("url",BuildConfig.HOST +msg.mesage);
+                    context.startActivity(intent);
                 }
             });
 

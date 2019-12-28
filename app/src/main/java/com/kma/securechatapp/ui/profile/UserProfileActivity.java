@@ -13,13 +13,17 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.textfield.TextInputEditText;
 import com.kma.securechatapp.BuildConfig;
 import com.kma.securechatapp.R;
 import com.kma.securechatapp.core.AppData;
@@ -30,6 +34,7 @@ import com.kma.securechatapp.core.service.RealtimeServiceConnection;
 import com.kma.securechatapp.helper.ImageLoadTask;
 import com.kma.securechatapp.ui.conversation.InboxActivity;
 import com.kma.securechatapp.utils.common.ImageLoader;
+import com.kma.securechatapp.utils.common.Utils;
 import com.kma.securechatapp.utils.misc.CircularImageView;
 
 import java.io.File;
@@ -79,6 +84,12 @@ public class UserProfileActivity extends AppCompatActivity {
     @BindView(R.id.profile_btn_message)
     Button btnMessage;
 
+    @BindView(R.id.btn_edit_name)
+    ImageView btnEditName;
+
+    @BindView(R.id.ed_profile_name)
+    TextInputEditText edProfileName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,11 +127,16 @@ public class UserProfileActivity extends AppCompatActivity {
         });
 
         userProfileViewModel.trigerUserInfo(uuid);
+        edProfileName.setVisibility(View.GONE);
 
         if (type == 0){
             layoutActionButton.setVisibility(View.GONE);
+            btnEditName.setVisibility(View.VISIBLE);
+
         }else
         {
+
+            btnEditName.setVisibility(View.GONE);
             layoutActionButton.setVisibility(View.VISIBLE);
             userProfileViewModel.getHasContact().observe(this,aBoolean -> {
                     if (aBoolean){
@@ -141,6 +157,59 @@ public class UserProfileActivity extends AppCompatActivity {
                     intent1.putExtra("uuid", conversation.UUID);
                     startActivity(intent1);
                 }
+        });
+
+        btnEditName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (edProfileName.getVisibility() == View.GONE) {
+                    edProfileName.setVisibility(View.VISIBLE);
+                    profileName.setVisibility(View.GONE);
+                    edProfileName.setText(profileName.getText());
+                }else{
+
+                    edProfileName.setVisibility(View.GONE);
+                    profileName.setVisibility(View.VISIBLE);
+                    Utils.hideKeyboard(UserProfileActivity.this);
+                }
+            }
+        });
+
+        edProfileName.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    String name = edProfileName.getText().toString().trim();
+                    if (name.length() < 6){
+                        return true;
+                    }
+                    userProfileViewModel.quickChangeName(name).enqueue(new Callback<ApiResponse<UserInfo>>() {
+                        @Override
+                        public void onResponse(Call<ApiResponse<UserInfo>> call, Response<ApiResponse<UserInfo>> response) {
+                            if (response.body()!= null && response.body().error == 0){
+                                profileName.setText(name);
+                                AppData.getInstance().currentUser = response.body().data;
+                                EventBus.getInstance().pushOnChangeProfile();
+                            }else{
+
+                            }
+                            edProfileName.setVisibility(View.GONE);
+                            profileName.setVisibility(View.VISIBLE);
+                            Utils.hideKeyboard(UserProfileActivity.this);
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<ApiResponse<UserInfo>> call, Throwable t) {
+                            edProfileName.setVisibility(View.GONE);
+                            profileName.setVisibility(View.VISIBLE);
+                            Utils.hideKeyboard(UserProfileActivity.this);
+                        }
+                    });
+                    return true;
+                }
+                return false;
+            }
         });
 
     }

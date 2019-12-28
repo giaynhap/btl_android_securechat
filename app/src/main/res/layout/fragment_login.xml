@@ -43,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Account"
                 android:inputType="text"
-
+                android:imeOptions="actionDone"
                 ></com.google.android.material.textfield.TextInputEditText>
 
         </com.google.android.material.textfield.TextInputLayout>

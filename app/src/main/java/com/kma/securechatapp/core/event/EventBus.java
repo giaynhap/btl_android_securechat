@@ -16,6 +16,7 @@ public class EventBus {
         public  void onLogout(UserInfo u){}
         public  void toatMessage(String msg){}
         public  void noticShow(String message,String title){}
+        public  void onChangeProfile(){}
     }
     private List<EvenBusAction> evenBusActions;
 
@@ -81,6 +82,11 @@ public class EventBus {
     public void noticShow(String message,String title){
         for (EvenBusAction eventBus:evenBusActions){
             eventBus.noticShow(message,title);
+        }
+    }
+    public void pushOnChangeProfile(){
+        for (EvenBusAction eventBus:evenBusActions){
+            eventBus.onChangeProfile();
         }
     }
 
