@@ -116,6 +116,8 @@ public interface ApiInterface {
     @POST("/users/quick/name")
     Call<ApiResponse<UserInfo>> quickChangeName(@Body  String name);
 
+    @GET("/contact/online")
+    Call<ApiResponse<List<Contact>>> getListOnline();
 
 
 }

@@ -17,6 +17,8 @@ import com.kma.securechatapp.R;
 import com.kma.securechatapp.adapter.ConversationAdapter;
 import com.kma.securechatapp.core.api.model.Conversation;
 import com.kma.securechatapp.core.event.EventBus;
+import com.kma.securechatapp.ui.control.suggestview.OnlineView;
+import com.kma.securechatapp.ui.control.suggestview.SuggestView;
 import com.kma.securechatapp.utils.misc.EndlessRecyclerOnScrollListener;
 import com.kma.securechatapp.utils.misc.RecyclerItemClickListener;
 
@@ -35,6 +37,7 @@ public class ConversationListFragment extends Fragment implements SwipeRefreshLa
     SwipeRefreshLayout swipeRefreshLayout;
 
     EventBus.EvenBusAction evenBus;
+    OnlineView onlineView;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -42,6 +45,8 @@ public class ConversationListFragment extends Fragment implements SwipeRefreshLa
                 ViewModelProviders.of(this).get(ConversationListViewModel.class);
         View root = inflater.inflate(R.layout.fragment_conversation, container, false);
         ButterKnife.bind(this,root);
+
+        onlineView =  new OnlineView(this.getActivity(),root.findViewById(R.id.online_view));
 
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this.getContext(), 1);
         recyclerView.setAdapter(conversationAdapter);
@@ -91,6 +96,11 @@ public class ConversationListFragment extends Fragment implements SwipeRefreshLa
             swipeRefreshLayout.setRefreshing(false);
         });
 
+        conversationListViewModel.getListOnline().observe( this , users->{
+            onlineView.upDateList(users);
+        });
+        conversationListViewModel.trigerLoadOnline();
+
         registerEvent();
         return root;
     }
@@ -99,6 +109,7 @@ public class ConversationListFragment extends Fragment implements SwipeRefreshLa
             @Override
             public void onRefreshConversation() {
                 conversationListViewModel.trigerLoadData(0);
+                conversationListViewModel.trigerLoadOnline();
             }
         };
         EventBus.getInstance().addEvent(evenBus);
@@ -107,6 +118,7 @@ public class ConversationListFragment extends Fragment implements SwipeRefreshLa
 
     @Override
     public void onRefresh() {
+        conversationListViewModel.trigerLoadOnline();
         conversationListViewModel.trigerLoadData(0);
     }
 

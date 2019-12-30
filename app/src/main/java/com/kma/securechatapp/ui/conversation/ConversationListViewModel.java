@@ -7,8 +7,10 @@ import androidx.lifecycle.ViewModel;
 import com.kma.securechatapp.core.api.ApiInterface;
 import com.kma.securechatapp.core.api.ApiUtil;
 import com.kma.securechatapp.core.api.model.ApiResponse;
+import com.kma.securechatapp.core.api.model.Contact;
 import com.kma.securechatapp.core.api.model.Conversation;
 import com.kma.securechatapp.core.api.model.PageResponse;
+import com.kma.securechatapp.core.api.model.UserInfo;
 
 import java.util.List;
 
@@ -24,14 +26,39 @@ public class ConversationListViewModel extends ViewModel {
     int numPage = 1;
     int curenPage = 0;
     private MutableLiveData<List<Conversation>> listConversation;
+    private MutableLiveData<List<Contact>> listOnline;
     List<Conversation> cache = null;
     public ConversationListViewModel() {
         listConversation = new MutableLiveData<>();
+        listOnline = new MutableLiveData<>();
     }
     public LiveData<List<Conversation>> getConversations( ) {
 
         return listConversation;
     }
+
+    public LiveData<List<Contact>> getListOnline(){
+        return listOnline;
+    }
+    public void trigerLoadOnline(){
+        api.getListOnline().enqueue(new Callback<ApiResponse<List<Contact>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<Contact>>> call, Response<ApiResponse<List<Contact>>> response) {
+
+                if (response.body() == null){
+                    listOnline.setValue(null);
+                    return;
+                }
+                listOnline.setValue(response.body().data);
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<Contact>>> call, Throwable t) {
+                listOnline.setValue(null);
+            }
+        });
+    }
+
 
     public void trigerLoadData(int page){
         api.pageConversation(page).enqueue(new Callback<ApiResponse<PageResponse<Conversation>>>() {
