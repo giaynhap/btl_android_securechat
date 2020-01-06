@@ -29,6 +29,7 @@ import com.kma.securechatapp.ui.about.AboutActivity;
 import com.kma.securechatapp.ui.authentication.KeyPasswordActivity;
 import com.kma.securechatapp.ui.authentication.LoginActivity;
 import com.kma.securechatapp.ui.contact.ContactAddActivity;
+import com.kma.securechatapp.ui.profile.SettingsActivity;
 import com.kma.securechatapp.ui.profile.UserProfileActivity;
 import com.kma.securechatapp.utils.common.ImageLoader;
 
@@ -244,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
-                 
+                        Intent intent;
                         drawerLayout.closeDrawers();
                         switch (menuItem.getItemId()){
 
@@ -252,7 +253,11 @@ public class MainActivity extends AppCompatActivity {
                                logout();
                                 break;
                             case R.id.menu_item_about:
-                                Intent intent = new Intent(MainActivity.this, AboutActivity.class);
+                                  intent = new Intent(MainActivity.this, AboutActivity.class);
+                                startActivity(intent);
+                                break;
+                            case R.id.menu_item_setting:
+                                  intent = new Intent(MainActivity.this, SettingsActivity.class);
                                 startActivity(intent);
                                 break;
                         }

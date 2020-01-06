@@ -44,6 +44,10 @@ android:layout_height="wrap_content"
             android:text=""
             />
         <com.google.android.material.textfield.TextInputEditText
+            android:drawablePadding="5dp"
+            android:drawableStart="@drawable/ic_face_black_24dp"
+            android:drawableLeft="@drawable/ic_face_black_24dp"
+
             android:id="@+id/account_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -54,6 +58,10 @@ android:layout_height="wrap_content"
             android:imeOptions="actionNext" />
 
         <com.google.android.material.textfield.TextInputEditText
+            android:drawablePadding="5dp"
+            android:drawableStart="@drawable/ic_key_black"
+            android:drawableLeft="@drawable/ic_key_black"
+
             android:id="@+id/password_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -63,6 +71,9 @@ android:layout_height="wrap_content"
             android:imeOptions="actionNext" />
 
         <com.google.android.material.textfield.TextInputEditText
+            android:drawablePadding="5dp"
+            android:drawableStart="@drawable/ic_face_black_24dp"
+            android:drawableLeft="@drawable/ic_face_black_24dp"
             android:id="@+id/name_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -72,6 +83,9 @@ android:layout_height="wrap_content"
             android:imeOptions="actionNext" />
 
         <com.google.android.material.textfield.TextInputEditText
+            android:drawablePadding="5dp"
+            android:drawableStart="@drawable/ic_location_on_black_24dp"
+            android:drawableLeft="@drawable/ic_location_on_black_24dp"
             android:id="@+id/address_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -81,6 +95,9 @@ android:layout_height="wrap_content"
             android:imeOptions="actionNext" />
 
         <com.google.android.material.textfield.TextInputEditText
+            android:drawablePadding="5dp"
+            android:drawableStart="@drawable/ic_contacts_black_24dp"
+            android:drawableLeft="@drawable/ic_contacts_black_24dp"
             android:id="@+id/phonenumber_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -90,6 +107,8 @@ android:layout_height="wrap_content"
             android:imeOptions="actionNext" />
 
         <com.google.android.material.textfield.TextInputEditText
+            android:padding="10dp"
+            android:background="@drawable/alert_background"
             android:id="@+id/dob_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

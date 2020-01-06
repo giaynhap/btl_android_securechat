@@ -38,13 +38,16 @@
             android:layout_height="wrap_content">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:drawablePadding="5dp"
+                android:drawableStart="@drawable/ic_face_black_24dp"
+                android:drawableLeft="@drawable/ic_face_black_24dp"
                 android:id="@+id/account_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Account"
                 android:inputType="text"
                 android:imeOptions="actionDone"
-                ></com.google.android.material.textfield.TextInputEditText>
+               ></com.google.android.material.textfield.TextInputEditText>
 
         </com.google.android.material.textfield.TextInputLayout>
 

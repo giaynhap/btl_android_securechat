@@ -27,19 +27,9 @@ public class DashboardViewHoder extends RecyclerView.ViewHolder {
     public void bind(int index){
         if (index < 1) {
             ImageLoader.getInstance().DisplayImage(ImageLoader.getUserAvatarUrl("e758cb50-3d30-498a-a0a9-5bc3a876b8c3", 80, 80), avatar);
-        } if (index == 1){
-            ImageLoader.getInstance().DisplayImage(ImageLoader.getUserAvatarUrl("e758cb50-3d30-498a-a0a9-5bc3a876b8c8", 80, 80), avatar);
-            name.setText("Yasuo");
-            content.setText("Hmm!!!  Sr manfai Hết mana không R được. đen VL.\n Ctrl + 6");
-        }
-        else  if (index == 2 ){
-            ImageLoader.getInstance().DisplayImage(ImageLoader.getUserAvatarUrl("d02dd4f6-66ab-4d24-9c26-b298d07fed62", 80, 80), avatar);
-            name.setText("KimJongun");
-            content.setText("0h45: Bản tin Triều Tiên phóng tên lửa lúc 0h22 là lỗi đánh máy\n-----\nĐmm đăng lung tung nữa là tao phóng thật bây zờ");
-        } if (index == 3){
-            ImageLoader.getInstance().DisplayImage(ImageLoader.getUserAvatarUrl("e758cb50-3d30-498a-a0a9-5bc3a876b8c8", 80, 80), avatar);
-            name.setText("Yasuo");
-            content.setText("Color like the wind, always  by my side!\n Một mình t chấp HẾT!!!");
+            name.setText("Trần Dần");
+            content.setText("Hoàn thành bài tập lớn môn Thực tập cơ sở chuyên ngành.");
+
         }
 
     }

@@ -26,7 +26,7 @@
         class="com.kma.securechatapp.ui.conversation.Inbox.ChatFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="0dp"
         app:layout_constraintBottom_toTopOf="@+id/layout_upload"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -54,6 +54,7 @@
         android:textAlignment="center"
         app:layout_constraintBottom_toTopOf="@+id/layout_chatbox" />
     <View
+        android:visibility="gone"
         android:id="@+id/view3"
         android:layout_width="0dp"
         android:layout_height="2dp"
@@ -63,6 +64,7 @@
         app:layout_constraintRight_toRightOf="parent" />
 
     <LinearLayout
+        android:padding="5dp"
         android:id="@+id/layout_chatbox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -107,7 +109,8 @@
         <EditText
             android:id="@+id/edittext_chatbox"
             android:hint="Enter message"
-            android:background="@android:color/transparent"
+            android:padding="10dp"
+            android:background="@drawable/bg_input_inbox"
             android:layout_gravity="center"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
