@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -242,10 +243,12 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
                 isShowSticker = false;
             }
         }else{
+            Utils.hideKeyboard(this,v);
             RealtimeServiceConnection.getInstance().sendStatus(MessageCommand.TYPING,0,uuid);
             typing = false;
             mediaLayout.setVisibility(View.VISIBLE);
             btnSend.setVisibility(GONE);
+
         }
     }
     boolean typing = false;
@@ -486,5 +489,18 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
                 Toast.makeText(InboxActivity.this,"Something error, can't send message",Toast.LENGTH_SHORT).show();
             }
         }
+    }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+    {
+        if ((keyCode == KeyEvent.KEYCODE_BACK))
+        {
+            if (this.isShowSticker){
+                isShowSticker = !isShowSticker;
+                fragmentBottom.setVisibility(GONE);
+                return false;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

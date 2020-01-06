@@ -25,10 +25,13 @@ public class Utils {
         catch(Exception ex){}
     }
 
-    public static void hideKeyboard(Activity activity) {
+    public static void hideKeyboard(Activity activity ) {
+        hideKeyboard(activity,null);
+    }
+    public static void hideKeyboard(Activity activity,View view ) {
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-
-        View view = activity.getCurrentFocus();
+        if (view == null)
+          view = activity.getCurrentFocus();
 
         if (view == null) {
             view = new View(activity);
