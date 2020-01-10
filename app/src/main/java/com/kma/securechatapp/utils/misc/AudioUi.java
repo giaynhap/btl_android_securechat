@@ -15,7 +15,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.kma.securechatapp.R;
+import com.kma.securechatapp.utils.common.EncryptFileLoader;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +36,8 @@ public class AudioUi extends FrameLayout implements MediaPlayer.OnCompletionList
     @BindView(R.id.button)
     ImageView button;
     Map<String,String> headers ;
+
+    File file = null;
 
     public AudioUi(Context context) {
         super(context);
@@ -64,6 +68,10 @@ public class AudioUi extends FrameLayout implements MediaPlayer.OnCompletionList
         headers = new HashMap<String,String>();
         headers.put(key,value);
     }
+
+    public void setPath(File file){
+        this.file = file;
+    }
     private void initView() {
         View view = inflate(getContext(), R.layout.item_audio_layout, null);
         addView(view);
@@ -75,6 +83,9 @@ public class AudioUi extends FrameLayout implements MediaPlayer.OnCompletionList
             @Override
             public void onClick(View v) {
                 try {
+                    if (file == null){
+                        return;
+                    }
                     if (mediaPlayer == null) {
                         mediaPlayer = new MediaPlayer();
                         mediaPlayer.setOnBufferingUpdateListener(AudioUi.this);
@@ -86,13 +97,16 @@ public class AudioUi extends FrameLayout implements MediaPlayer.OnCompletionList
                             }
                         });
 
-                        if (headers != null) {
+                        /*if (headers != null) {
                             Method method = mediaPlayer.getClass().getMethod("setDataSource", new Class[]{String.class, Map.class});
                             method.invoke(mediaPlayer, new Object[]{url, headers});
                         } else {
                             mediaPlayer.setDataSource(url);
-                        }
+                        }*/
 
+                        if (file != null){
+                            mediaPlayer.setDataSource(file.getAbsolutePath());
+                        }
                         mediaPlayer.prepare();
                     }
 

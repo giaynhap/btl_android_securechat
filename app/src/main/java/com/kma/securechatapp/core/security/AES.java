@@ -13,6 +13,21 @@ public class AES {
     private static SecretKeySpec secretKey;
     private static byte[] key;
 
+    public static byte[] genSHAKey(String keye){
+        byte[] key;
+        try {
+            key = keye.getBytes("UTF-8");
+            MessageDigest sha = null;
+            sha = MessageDigest.getInstance("SHA-1");
+            key = sha.digest(key);
+            key = Arrays.copyOf(key, 16);
+            return key;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
     public static void setKey(String myKey)
     {
         MessageDigest sha = null;

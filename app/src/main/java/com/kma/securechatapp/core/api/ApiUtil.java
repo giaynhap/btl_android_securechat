@@ -26,24 +26,7 @@ public class ApiUtil {
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
-        httpClientBuilder.addInterceptor(new Interceptor() {
-            @Override
-            public Response intercept(Chain chain) throws IOException {
-
-                Request.Builder requestBuilder =  chain.request().newBuilder();
-                if (AppData.getInstance().getToken() != null){
-                    requestBuilder.addHeader("Authorization","Bearer "+ AppData.getInstance().getToken());
-                }
-                Request request = requestBuilder.build();
-                return chain.proceed(request);
-            }
-        });
-
-        OkHttpClient client =httpClientBuilder.addInterceptor(interceptor)
-                .readTimeout(60,TimeUnit.SECONDS)
-                .connectTimeout(60,TimeUnit.SECONDS)
-                .build();
-
+        OkHttpClient client = UnsafeOkHttpClient.getUnsafeOkHttpClient();
 
         retrofit = new Retrofit.Builder()
                 .baseUrl(BuildConfig.HOST)

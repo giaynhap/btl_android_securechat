@@ -64,7 +64,7 @@ public class SecureChatSystem {
         result.type = message.type;
         result.uuid = message.uuid;
         result.userUuid = message.userUuid;
-
+        result.password = key;
 
         return result;
     }

@@ -31,6 +31,7 @@ import com.kma.securechatapp.ui.authentication.LoginActivity;
 import com.kma.securechatapp.ui.contact.ContactAddActivity;
 import com.kma.securechatapp.ui.profile.SettingsActivity;
 import com.kma.securechatapp.ui.profile.UserProfileActivity;
+import com.kma.securechatapp.utils.common.EncryptFileLoader;
 import com.kma.securechatapp.utils.common.ImageLoader;
 
 import androidx.annotation.Nullable;
@@ -95,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         ImageLoader.getInstance().bind(this);
+        EncryptFileLoader.getInstance().bind(this);
         register();
 
         if (

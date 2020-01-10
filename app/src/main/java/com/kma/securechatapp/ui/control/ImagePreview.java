@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.kma.securechatapp.R;
+import com.kma.securechatapp.utils.common.EncryptFileLoader;
 import com.kma.securechatapp.utils.common.ImageLoader;
 
 import butterknife.BindView;
@@ -22,7 +23,8 @@ public class ImagePreview extends AppCompatActivity {
         setContentView(R.layout.activity_image_preview);
         ButterKnife.bind(this);
         String url = this.getIntent().getStringExtra("url");
-        ImageLoader.getInstance().DisplayImage(url,imageView,true);
+        byte[] key = this.getIntent().getByteArrayExtra("key");
+        EncryptFileLoader.getInstance().loadEncryptImage(url,key,imageView);
         imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
     }
 }

@@ -5,9 +5,10 @@ import android.content.Context;
 import java.io.File;
 
 public class FileCache {
-    private File cacheDir;
+    public static File cacheDir;
 
     public FileCache(Context context){
+        if (cacheDir == null)
         cacheDir = getCacheFolder(context);
     }
 

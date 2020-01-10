@@ -13,8 +13,8 @@ android {
     }
     buildTypes {
         debug {
-            buildConfigField "String", "HOST", "\"http://192.168.44.101:8082/\""
-            buildConfigField "String", "WS_FULL_PATH", "\"ws://192.168.44.101:8082/ws/websocket\""
+            buildConfigField "String", "HOST", "\"https://124.158.6.221:9833/\""
+            buildConfigField "String", "WS_FULL_PATH", "\"wss://124.158.6.221:9833/ws/websocket\""
 
         }
 
@@ -32,10 +32,12 @@ android {
         }
 
         release {
-            minifyEnabled false
+
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "HOST", "\"http://192.168.0.107:8082/\""
-            buildConfigField "String", "WS_FULL_PATH", "\"ws://192.168.0.107:8082/ws/websocket\""
+            buildConfigField "String", "HOST", "\"https://124.158.6.221:9833/\""
+            buildConfigField "String", "WS_FULL_PATH", "\"wss://124.158.6.221:9833/ws/websocket\""
+
+
         }
     }
     compileOptions {

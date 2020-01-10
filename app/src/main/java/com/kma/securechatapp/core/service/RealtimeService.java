@@ -23,6 +23,7 @@ import com.kma.securechatapp.BuildConfig;
 import com.kma.securechatapp.R;
 import com.kma.securechatapp.core.AppData;
 import com.kma.securechatapp.core.MessageCommand;
+import com.kma.securechatapp.core.api.UnsafeOkHttpClient;
 import com.kma.securechatapp.core.api.model.Message;
 import com.kma.securechatapp.core.api.model.MessagePlaneText;
 import com.kma.securechatapp.core.api.model.SocketMessageCommand;
@@ -122,7 +123,7 @@ public class RealtimeService extends Service {
         }
         closeSocket = false;
         regist = false;
-        client = Stomp.over(Stomp.ConnectionProvider.OKHTTP, BuildConfig.WS_FULL_PATH);
+        client = Stomp.over(Stomp.ConnectionProvider.OKHTTP, BuildConfig.WS_FULL_PATH,null, UnsafeOkHttpClient.getUnsafeOkHttpClient() );
         client.withClientHeartbeat(1000).withServerHeartbeat(1000);
 
 
@@ -155,48 +156,49 @@ public class RealtimeService extends Service {
 
     @SuppressLint("CheckResult")
     public void connectSocket() {
-        if (!client.isConnected() ) {
-                if (!regist) {
-                    String username =DataService.getInstance(this.getApplication()).getUserUuid();
-                    String channel = "/topic/" + username;
-                    regist = true;
-                    client.topic(channel, getHeaders())
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .onErrorReturn(throwable -> {
-                                return null;
-                            })
-                            .subscribe(response -> {
-                                String jsonString = response.getPayload();
-                                Gson gson = new Gson();
-                                SocketMessageCommand message = gson.fromJson(jsonString, SocketMessageCommand.class);
-                                Log.d("Test", jsonString);
-                                switch (message.getCommand()) {
-                                    case MESSAGE:
-                                        MessagePlaneText planeMessage = SecureChatSystem.getInstance().decode(message.getData(),null);
-                                        if (checkThreadToSoft(planeMessage.threadUuid)) {
-                                            sendBroadcastNewMessage(planeMessage);
-                                        } else {
-                                            createNotification(planeMessage);
-                                        }
-                                        break;
-                                    case READ:
-                                        sendBroadcastStatus(ServiceAction.REVC_READ, message.getData().uuid, message.getData().senderUuid, 1);
-                                        break;
-                                    case TYPING:
-                                        sendBroadcastStatus(ServiceAction.REVC_TYPING, message.getData().uuid, message.getData().senderUuid, message.getData().type);
-                                        break;
-                                }
 
-                            },  throwable -> Log.e(TAG, "Throwable " + throwable.getMessage()));
-
-                }
-
+        if (!connecting) {
             connecting = true;
-
             client.connect(getHeaders());
+        }
+
+        if (!regist && connecting) {
+            String username =DataService.getInstance(this.getApplication()).getUserUuid();
+            String channel = "/topic/" + username;
+            regist = true;
+            client.topic(channel, getHeaders())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .onErrorReturn(throwable -> {
+                        return null;
+                    })
+                    .subscribe(response -> {
+                        String jsonString = response.getPayload();
+                        Gson gson = new Gson();
+                        SocketMessageCommand message = gson.fromJson(jsonString, SocketMessageCommand.class);
+                        Log.d("Test", jsonString);
+                        switch (message.getCommand()) {
+                            case MESSAGE:
+                                MessagePlaneText planeMessage = SecureChatSystem.getInstance().decode(message.getData(),null);
+                                if (checkThreadToSoft(planeMessage.threadUuid)) {
+                                    sendBroadcastNewMessage(planeMessage);
+                                } else {
+                                    createNotification(planeMessage);
+                                }
+                                break;
+                            case READ:
+                                sendBroadcastStatus(ServiceAction.REVC_READ, message.getData().uuid, message.getData().senderUuid, 1);
+                                break;
+                            case TYPING:
+                                sendBroadcastStatus(ServiceAction.REVC_TYPING, message.getData().uuid, message.getData().senderUuid, message.getData().type);
+                                break;
+                        }
+
+                    },  throwable -> Log.e(TAG, "Throwable " + throwable.getMessage()));
 
         }
+
+
     }
     public  List<StompHeader> getHeaders(){
         token = DataService.getInstance(this).getToken();
@@ -209,12 +211,13 @@ public class RealtimeService extends Service {
     public void disconnectSocket() {
         closeSocket = true;
         if (client != null)
-        if (client.isConnected()){
-            client.disconnect();
-            regist = false;
-            client = null;
+         try{
+             client.disconnect();
+             regist = false;
+             client = null;
+         }catch (Exception e){
 
-        }
+         }
     }
     void sendBroadcastNewMessage(MessagePlaneText message) {
         Intent intent = new Intent();

@@ -38,4 +38,6 @@ public class MessagePlaneText implements Serializable  {
     @SerializedName("encrypted")
     public  boolean encrypted;
 
+    public byte[] password;
+
 }

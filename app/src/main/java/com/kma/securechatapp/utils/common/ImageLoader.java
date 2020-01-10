@@ -22,6 +22,12 @@ import android.widget.ImageView;
 
 import com.kma.securechatapp.BuildConfig;
 import com.kma.securechatapp.R;
+import com.kma.securechatapp.core.api.UnsafeOkHttpClient;
+
+import javax.net.ssl.HttpsURLConnection;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 public class ImageLoader {
 
@@ -110,16 +116,15 @@ public class ImageLoader {
             if (b != null)
                 return b;
         }
-
         //from web
         try {
             Bitmap bitmap=null;
-            URL imageUrl = new URL(url);
-            HttpURLConnection conn = (HttpURLConnection)imageUrl.openConnection();
-            conn.setConnectTimeout(30000);
-            conn.setReadTimeout(30000);
-            conn.setInstanceFollowRedirects(true);
-            InputStream is=conn.getInputStream();
+          
+            OkHttpClient client =  UnsafeOkHttpClient.getUnsafeOkHttpClient();
+            Request request = new Request.Builder()
+                    .url(url).build();
+
+            InputStream is= client.newCall(request).execute().body().byteStream();
             OutputStream os = new FileOutputStream(f);
             Utils.CopyStream(is, os);
             os.close();

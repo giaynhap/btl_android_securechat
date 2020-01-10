@@ -18,9 +18,12 @@ import com.kma.securechatapp.core.AppData;
 import com.kma.securechatapp.core.api.model.MessagePlaneText;
 import com.kma.securechatapp.helper.ImageLoadTask;
 import com.kma.securechatapp.ui.control.ImagePreview;
+import com.kma.securechatapp.utils.common.EncryptFileLoader;
 import com.kma.securechatapp.utils.common.ImageLoader;
 import com.kma.securechatapp.utils.common.StringHelper;
 import com.kma.securechatapp.utils.misc.AudioUi;
+
+import java.io.File;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,7 +48,9 @@ public class MessageReceivederViewHolder extends RecyclerView.ViewHolder {
 
     public void bind (MessagePlaneText msg, boolean hideIcon){
         if (msg.type == 1) {
-            ImageLoader.getInstance().DisplayImage(BuildConfig.HOST +msg.mesage+"?type=small",(ImageView)txtBody);
+           // ImageLoader.getInstance().DisplayImage(BuildConfig.HOST +msg.mesage+"?type=small",(ImageView)txtBody);
+            EncryptFileLoader.getInstance().loadEncryptImage(BuildConfig.HOST +msg.mesage,msg.password,(ImageView)txtBody);
+
             txtBody.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -53,6 +58,7 @@ public class MessageReceivederViewHolder extends RecyclerView.ViewHolder {
                     Context context = MessageReceivederViewHolder.this.itemView.getContext();
                     Intent intent = new Intent( context, ImagePreview.class);
                     intent.putExtra("url",BuildConfig.HOST +msg.mesage);
+                    intent.putExtra("key",msg.password);
                     context.startActivity(intent);
 
                 }
@@ -63,8 +69,20 @@ public class MessageReceivederViewHolder extends RecyclerView.ViewHolder {
         }
         else if (msg.type == 2)
         {
+            EncryptFileLoader.getInstance()
+            .loadEncryptFile(BuildConfig.HOST + msg.mesage, msg.password, new EncryptFileLoader.EventLoadedEncryptFile() {
+                @Override
+                public void onLoaded(int error, File file) {
+                    if ( error == 1 ){
+                        return;
+                    }
+                    ((AudioUi)txtBody).setPath(file);
+                }
+            });
+            /*
             ((AudioUi)txtBody).setUrl(BuildConfig.HOST +msg.mesage);
             ((AudioUi)txtBody).addHeader("Authorization","Bearer "+ AppData.getInstance().getToken());
+            */
         }
         else if (msg.type == 3)
         {

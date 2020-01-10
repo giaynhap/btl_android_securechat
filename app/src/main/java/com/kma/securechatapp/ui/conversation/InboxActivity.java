@@ -63,6 +63,7 @@ import com.kma.securechatapp.ui.conversation.Inbox.ChatFragment;
 import com.kma.securechatapp.ui.conversation.Inbox.StickerFragment;
 import com.kma.securechatapp.ui.profile.UserProfileActivity;
 import com.kma.securechatapp.utils.common.AudioRecorder;
+import com.kma.securechatapp.utils.common.EncryptFileLoader;
 import com.kma.securechatapp.utils.common.ImageLoader;
 import com.kma.securechatapp.utils.common.Utils;
 import com.kma.securechatapp.utils.misc.CircularImageView;
@@ -284,6 +285,18 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
     @OnClick(R.id.btn_image)
     void onUploadImage(View view){
 
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(), READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(this, new String[]
+                    {
+                            READ_EXTERNAL_STORAGE,
+                            WRITE_EXTERNAL_STORAGE
+
+                    }, 1);
+
+        }
+
         Intent galleryIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(galleryIntent, PICK_IMAGE);
 
@@ -317,6 +330,7 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
 
             if (type == 1){
                 File file = recoder.getFile();
+                file = EncryptFileLoader.getInstance().encryptFile(file,inboxViewModel.key);
                 RequestBody requestFile =
                         RequestBody.create(MediaType.parse("multipart/form-data"), file);
                 MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
@@ -342,7 +356,7 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
             }else{
                 recoder = null;
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -426,26 +440,17 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
 
 
             File file = new File(FilePathStr);
-
-            onChooseImageFile (file,selectedImage);
+            try {
+                file =  EncryptFileLoader.getInstance().encryptFile(file,inboxViewModel.key);
+                onChooseImageFile (file,selectedImage);
+            } catch (Exception e) {
+              Toast.makeText(this,"Encrypt file error ",Toast.LENGTH_SHORT).show();
+            }
 
         }
     }
 
     void onChooseImageFile(File file,Uri uri){
-
-
-        if (ContextCompat.checkSelfPermission(this.getApplicationContext(), READ_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(this, new String[]
-                    {
-                            READ_EXTERNAL_STORAGE,
-                            WRITE_EXTERNAL_STORAGE
-
-                    }, 1);
-
-        }
 
         RequestBody requestFile =
                 RequestBody.create(MediaType.parse("multipart/form-data"), file);

@@ -61,6 +61,7 @@ public class InboxViewModel extends ViewModel {
     public void trigerNewMessage(MessagePlaneText newMessage){
         if (newMessage.encrypted){
             newMessage.mesage = SecureChatSystem.getInstance().decode(newMessage.mesage,key);
+            newMessage.password = key;
         }
         message.setValue(newMessage);
        // cache.add(0,newMessage);
@@ -93,6 +94,7 @@ public class InboxViewModel extends ViewModel {
             }
         });
     }
+
     public void cleanCache(){
         if (cache!= null) {
             cache.clear();
@@ -119,8 +121,6 @@ public class InboxViewModel extends ViewModel {
                         }
 
                     }
-
-
                 }else{
                     conversationInfo.setValue(null);
                 }
@@ -165,6 +165,7 @@ public class InboxViewModel extends ViewModel {
         }
         trigerLoadMessage(lastTime);
     }
+
     public LiveData<Conversation> getConversationInfo(){
         return this.conversationInfo;
     }
