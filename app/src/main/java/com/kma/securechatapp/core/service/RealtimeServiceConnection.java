@@ -24,8 +24,12 @@ public class RealtimeServiceConnection {
         return instance;
     }
     public void bindService(Context context){
-        Intent intent = new Intent(context, RealtimeService.class);
-        context.bindService(intent, mSocketServiceConnection, Context.BIND_AUTO_CREATE);
+        try {
+            Intent intent = new Intent(context, RealtimeService.class);
+            context.bindService(intent, mSocketServiceConnection, Context.BIND_AUTO_CREATE);
+        }catch (Exception e){
+
+        }
     }
     public RealtimeServiceConnection() {
 
