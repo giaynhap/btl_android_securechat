@@ -41,6 +41,7 @@
         <activity android:name=".ui.authentication.KeyPasswordActivity" />
 
         <service
+            android:stopWithTask="false"
             android:name=".core.service.RealtimeService"
             android:enabled="true"
             android:exported="true" />

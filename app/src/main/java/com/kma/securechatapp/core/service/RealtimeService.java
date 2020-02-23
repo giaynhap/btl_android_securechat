@@ -76,6 +76,13 @@ public class RealtimeService extends Service {
 
         return START_STICKY;
     }
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+
+        startService(new Intent(this, RealtimeService.class));
+
+        super.onTaskRemoved(rootIntent);
+    }
 
     @Override
     public void onCreate() {
@@ -87,15 +94,19 @@ public class RealtimeService extends Service {
             String CHANNEL_ID = "chanel_000";
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
                     "GiayNhap",
-                    NotificationManager.IMPORTANCE_DEFAULT);
+                    NotificationManager.IMPORTANCE_LOW);
 
             ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
 
             Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                     .setContentTitle("")
+                    .setPriority(Notification.PRIORITY_MIN)
                     .setContentText("").build();
 
-            startForeground(1, notification);
+
+         //   startForeground(0, notification);
+        //    NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        //    mNotificationManager.cancel(0);
         }
 
       //  initSocket();
@@ -385,6 +396,9 @@ public class RealtimeService extends Service {
     @Override
     public void onDestroy() {
         disconnectSocket();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+       //     stopForeground(true);
+        }
         super.onDestroy();
 
     }

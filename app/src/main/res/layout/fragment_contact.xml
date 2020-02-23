@@ -6,53 +6,58 @@
     android:layout_height="match_parent"
     android:paddingBottom="60dp"
     >
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/float_add_button"
+        app:backgroundTint="@color/colorPrimary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_add_black_24dp"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <LinearLayout
-        android:background="#ffffff"
-        android:orientation="vertical"
+        android:id="@+id/linearLayout5"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="#ffffff"
+        android:orientation="vertical">
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="60dp">
 
             <TextView
-                android:textColor="#000000"
                 android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
                 android:text="Contact"
+                android:textColor="#000000"
                 android:textSize="20dip"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.512" />
 
-            <Button
-                android:textSize="15dip"
-                android:id="@+id/btn_add_contact"
-                android:layout_width="130dp"
-                android:layout_height="35dp"
-                android:background="@drawable/bg_button_corners"
-                android:text="Add Contact"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
+
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_margin="10dp"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/contact_search_input"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:hint="Search your contact ..."
-                android:inputType="text"
                 android:background="@android:color/transparent"
-                ></com.google.android.material.textfield.TextInputEditText>
+                android:hint="Search your contact ..."
+                android:inputType="text"></com.google.android.material.textfield.TextInputEditText>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -60,11 +65,11 @@
             android:id="@+id/contact_swipcontainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-             <androidx.recyclerview.widget.RecyclerView
-                  android:id="@+id/contact_recycler_view"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent">
-             </androidx.recyclerview.widget.RecyclerView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/contact_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"></androidx.recyclerview.widget.RecyclerView>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 

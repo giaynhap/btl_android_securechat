@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.kma.securechatapp.MainActivity;
 import com.kma.securechatapp.R;
 import com.kma.securechatapp.adapter.ContactAdapter;
@@ -31,6 +32,9 @@ public class ContactListFragment extends Fragment implements SwipeRefreshLayout.
     private ContactViewModel contactViewModel;
     private ContactAdapter contactAdapter = new ContactAdapter();
     private  EndlessRecyclerOnScrollListener endlessRecyclerOnScrollListener;
+    @BindView(R.id.float_add_button)
+    FloatingActionButton floatAddButton;
+
     @BindView(R.id.contact_recycler_view)
     RecyclerView recyclerView;
 
@@ -111,7 +115,8 @@ public class ContactListFragment extends Fragment implements SwipeRefreshLayout.
         endlessRecyclerOnScrollListener.reset();
         contactViewModel.trigerLoadData(0);
     }
-    @OnClick(R.id.btn_add_contact)
+
+    @OnClick(R.id.float_add_button)
     public void onClickAdd(View view){
         Intent intent = new Intent(MainActivity.instance,ContactAddActivity.class);
         startActivity(intent);

@@ -205,7 +205,8 @@ public class MainActivity extends AppCompatActivity {
                         public void run() {
                             Intent intent = new Intent(MainActivity.this, RealtimeService.class);
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                startForegroundService(intent);
+                               // startForegroundService(intent);
+                                startService(intent);
                             } else {
                                 startService(intent);
                             }

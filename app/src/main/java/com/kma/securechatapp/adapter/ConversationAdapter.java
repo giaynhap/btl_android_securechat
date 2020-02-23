@@ -39,7 +39,7 @@ public class ConversationAdapter extends RecyclerView.Adapter {
         conversationHolder.setAvatar(BuildConfig.HOST +"conversation/thumb/"+conversation.UUID+"/"+ AppData.getInstance().currentUser.uuid +"?width=80&height=80");
         conversationHolder.setTitle(conversation.name);
        // conversationHolder.setMessage(conversation.lastMessage);
-        conversationHolder.setMessage("encryptd");
+        conversationHolder.setMessage("⚿ encrypted");
         conversationHolder.setTime(conversation.lastMessageAt);
         conversationHolder.setOnline(conversation.isOnline());
         conversationHolder.setNumUnRead(conversation.unRead);
