@@ -69,9 +69,11 @@ public class AccountFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 10){
-           this.getActivity().finishActivity(0);
-            this.getActivity().finish();
+        if (requestCode == 10 ){
+            if (AppData.getInstance().currentUser != null) {
+                this.getActivity().finishActivity(0);
+                this.getActivity().finish();
+            }
         }
 
     }
