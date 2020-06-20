@@ -8,8 +8,11 @@ import android.os.IBinder;
 
 import com.kma.securechatapp.core.MessageCommand;
 import com.kma.securechatapp.core.api.model.UserInfo;
+import com.kma.securechatapp.core.event.EventQrCodeMessage;
 
 import java.util.List;
+
+import io.reactivex.disposables.Disposable;
 
 public class RealtimeServiceConnection {
     ServiceConnection mSocketServiceConnection;
@@ -71,8 +74,17 @@ public class RealtimeServiceConnection {
             mService.connectSocket();
         }
     }
+    public void connectBeforLogin(String hash,String code,EventQrCodeMessage e){
+        mService.connectBeforLogin(hash,code,e);
+    }
 
+    public Disposable  subscribeLoginQRTopic(String hash, EventQrCodeMessage e){
+       return  mService.subscribeLoginQRTopic(hash,e);
+    }
 
+    public void unsubscribeLoginQrTopic(Disposable disposable){
+          mService.unsubcribeLoginQRTopic(disposable);
+    }
 
     public void disconnectSocketService(Context context) {
         if (mSocketServiceConnection != null) {

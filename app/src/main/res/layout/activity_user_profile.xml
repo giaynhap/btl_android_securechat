@@ -17,6 +17,9 @@
         app:layout_constraintTop_toTopOf="parent">
 
     </View>
+
+
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/profile_toolbar"
         android:layout_width="match_parent"
@@ -24,7 +27,13 @@
         app:layout_constraintTop_toTopOf="parent">
 
     </androidx.appcompat.widget.Toolbar>
-
+    <ImageView
+        android:id="@+id/scan_qrcode"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/qr_code"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
     <com.kma.securechatapp.utils.misc.CircularImageView
 
         android:id="@+id/profil_avatar"

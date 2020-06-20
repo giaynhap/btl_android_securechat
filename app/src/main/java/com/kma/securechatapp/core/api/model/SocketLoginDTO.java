@@ -2,28 +2,28 @@ package com.kma.securechatapp.core.api.model;
 
 import com.google.gson.annotations.SerializedName;
 import com.kma.securechatapp.core.MessageCommand;
+import com.kma.securechatapp.core.SocketLoginCommand;
 
-import java.io.Serializable;
+public class SocketLoginDTO {
 
-public class SocketMessageCommand implements Serializable {
     @SerializedName("command")
-    private MessageCommand command;
+    SocketLoginCommand command;
     @SerializedName("data")
-    private Message data;
+    private String data;
 
-    public MessageCommand  getCommand() {
+    public SocketLoginCommand getCommand() {
         return command;
     }
 
-    public void setCommand(MessageCommand command) {
+    public void setCommand(SocketLoginCommand command) {
         this.command = command;
     }
 
-    public Message getData() {
+    public String getData() {
         return data;
     }
 
-    public void setData(Message data) {
+    public void setData(String data) {
         this.data = data;
     }
 }

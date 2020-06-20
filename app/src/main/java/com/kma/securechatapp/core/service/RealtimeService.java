@@ -23,12 +23,15 @@ import com.kma.securechatapp.BuildConfig;
 import com.kma.securechatapp.R;
 import com.kma.securechatapp.core.AppData;
 import com.kma.securechatapp.core.MessageCommand;
+import com.kma.securechatapp.core.SocketLoginCommand;
 import com.kma.securechatapp.core.api.UnsafeOkHttpClient;
 import com.kma.securechatapp.core.api.model.Message;
 import com.kma.securechatapp.core.api.model.MessagePlaneText;
+import com.kma.securechatapp.core.api.model.SocketLoginDTO;
 import com.kma.securechatapp.core.api.model.SocketMessageCommand;
 import com.kma.securechatapp.core.api.model.UserCryMessage;
 import com.kma.securechatapp.core.api.model.UserInfo;
+import com.kma.securechatapp.core.event.EventQrCodeMessage;
 import com.kma.securechatapp.core.security.SecureChatSystem;
 import com.kma.securechatapp.ui.conversation.InboxActivity;
 
@@ -165,16 +168,81 @@ public class RealtimeService extends Service {
 
     }
 
+    public Disposable subscribeLoginQRTopic(String hash, EventQrCodeMessage e){
+        Disposable  sub = client.topic("/qr-login/"+hash, getHeaders())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorReturn(throwable -> {
+                    return null;
+                })
+                .subscribe(response -> {
+                    String jsonString = response.getPayload();
+                    Gson gson = new Gson();
+                    SocketLoginDTO message = gson.fromJson(jsonString, SocketLoginDTO.class);
+                    SocketLoginDTO responseMsg =  e.onMessage(message);
+                    if (responseMsg != null){
+                        String jsonMessage = new Gson().toJson(responseMsg);
+
+                        List<StompHeader> headers = getHeaders();
+                        headers.add(new StompHeader(StompHeader.DESTINATION, "/qr-login/"+hash));
+                        StompMessage stompMessage = new StompMessage(
+                                StompCommand.SEND,headers,jsonMessage);
+
+                        client.send(stompMessage)
+                                .compose(applySchedulers())
+                                .subscribe(
+                                        () -> Log.d(TAG, "Sent data!"),
+                                        error -> Log.e(TAG, "Error", error)
+                                );
+                    }
+
+                },  throwable -> Log.e(TAG, "Throwable " + throwable.getMessage()));
+        return sub;
+    }
+    public void unsubcribeLoginQRTopic(Disposable disposable){
+        disposable.dispose();
+    }
+
+    public void connectBeforLogin(String secureHash,String code,EventQrCodeMessage e){
+        if (!connecting) {
+            connecting = true;
+            initSocket();
+            client.connect(getHeaders());
+
+            this.subscribeLoginQRTopic(secureHash,e);
+        }
+
+
+        SocketLoginDTO socketMessage = new SocketLoginDTO();
+        socketMessage.setCommand(SocketLoginCommand.PREHANDSHAKE);
+        socketMessage.setData(code);
+        String jsonMessage = new Gson().toJson(socketMessage);
+
+        List<StompHeader> headers = getHeaders();
+        headers.add(new StompHeader(StompHeader.DESTINATION, "/qr-login/"+secureHash));
+        StompMessage stompMessage = new StompMessage(
+                StompCommand.SEND,headers,jsonMessage);
+
+        client.send(stompMessage)
+                .compose(applySchedulers())
+                .subscribe(
+                        () -> Log.d(TAG, "Sent data!"),
+                        error -> Log.e(TAG, "Error", error)
+                );
+
+    }
     @SuppressLint("CheckResult")
     public void connectSocket() {
+
 
         if (!connecting) {
             connecting = true;
             client.connect(getHeaders());
         }
 
+
         if (!regist && connecting) {
-            String username =DataService.getInstance(this.getApplication()).getUserUuid();
+            String username = DataService.getInstance(this.getApplication()).getUserUuid();
             String channel = "/topic/" + username;
             regist = true;
             client.topic(channel, getHeaders())
@@ -215,12 +283,15 @@ public class RealtimeService extends Service {
         token = DataService.getInstance(this).getToken();
 
         List<StompHeader> headers = new ArrayList<>();
-        headers.add( new StompHeader("X-Authorization",token));
+        if (token != null) {
+            headers.add(new StompHeader("X-Authorization", token));
+        }
         return headers;
     }
 
     public void disconnectSocket() {
         closeSocket = true;
+        connecting = false;
         if (client != null)
          try{
              client.disconnect();
@@ -305,7 +376,7 @@ public class RealtimeService extends Service {
 
 
         List<StompHeader> headers = getHeaders();
-        headers.add(new StompHeader(StompHeader.DESTINATION, "/queue/send"));
+        headers.add(new StompHeader(StompHeader.DESTINATION, "/send"));
 
         SocketMessageCommand  command = new SocketMessageCommand();
 
@@ -354,7 +425,7 @@ public class RealtimeService extends Service {
         String jsonMessage = new Gson().toJson(command);
 
         List<StompHeader> headers = getHeaders();
-        headers.add(new StompHeader(StompHeader.DESTINATION, "/queue/send"));
+        headers.add(new StompHeader(StompHeader.DESTINATION, "/send"));
         StompMessage stompMessage = new StompMessage(
                 StompCommand.SEND,headers,jsonMessage);
 

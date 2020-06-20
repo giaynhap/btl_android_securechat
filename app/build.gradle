@@ -13,8 +13,8 @@ android {
     }
     buildTypes {
         debug {
-            buildConfigField "String", "HOST", "\"https://124.158.6.221:9833/\""
-            buildConfigField "String", "WS_FULL_PATH", "\"wss://124.158.6.221:9833/ws/websocket\""
+            buildConfigField "String", "HOST", "\"https://192.168.1.199:8082/\""
+            buildConfigField "String", "WS_FULL_PATH", "\"wss://192.168.1.199:8082/ws/websocket\""
 
         }
 
@@ -70,16 +70,23 @@ dependencies {
 
     implementation 'com.squareup.retrofit2:retrofit:2.6.2'
     implementation 'com.squareup.retrofit2:converter-gson:2.6.2'
-
+    //JSON
     implementation 'com.google.code.gson:gson:2.6.2'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.4.1'
     implementation 'com.squareup.okhttp3:okhttp:3.11.0'
-
+    // butterknife
     implementation 'com.jakewharton:butterknife:10.2.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.0'
 
-
+    //RXJS
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.3'
     implementation 'com.github.naiksoftware:stompprotocolandroid:1.6.4'
+
+    //Create
+    implementation 'androidmads.library.qrgenearator:QRGenearator:1.0.3'
+    //Scane
+
+    implementation 'com.google.android.gms:play-services-vision:11.8.0'
+
 }

@@ -97,31 +97,18 @@ public class MainActivity extends AppCompatActivity {
         StrictMode.setThreadPolicy(policy);
         ImageLoader.getInstance().bind(this);
         EncryptFileLoader.getInstance().bind(this);
+
+        Intent intent = new Intent(MainActivity.this, RealtimeService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // startForegroundService(intent);
+            startService(intent);
+        } else {
+            startService(intent);
+        }
+
         register();
 
-        if (
-                ContextCompat.checkSelfPermission(this.getApplicationContext(), READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED
-                        ||
-                ContextCompat.checkSelfPermission(this.getApplicationContext(), INTERNET)
-                        != PackageManager.PERMISSION_GRANTED
-                        ||
-                ContextCompat.checkSelfPermission(this.getApplicationContext(), RECORD_AUDIO)
-                        != PackageManager.PERMISSION_GRANTED
 
-        ) {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]
-                    {
-                            CAMERA,
-                            INTERNET,
-                            RECORD_AUDIO,
-                            NETWORK_STATS_SERVICE,
-                            READ_EXTERNAL_STORAGE,
-                            WRITE_EXTERNAL_STORAGE
-
-                    }, 1);
-
-        }
 
 
 
@@ -203,13 +190,7 @@ public class MainActivity extends AppCompatActivity {
                     MainActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Intent intent = new Intent(MainActivity.this, RealtimeService.class);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                               // startForegroundService(intent);
-                                startService(intent);
-                            } else {
-                                startService(intent);
-                            }
+
                             RealtimeServiceConnection.getInstance().restart();
                         }
                     });

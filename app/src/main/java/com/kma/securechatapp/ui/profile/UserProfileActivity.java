@@ -28,10 +28,12 @@ import com.kma.securechatapp.BuildConfig;
 import com.kma.securechatapp.R;
 import com.kma.securechatapp.core.AppData;
 import com.kma.securechatapp.core.api.model.ApiResponse;
+import com.kma.securechatapp.core.api.model.Contact;
 import com.kma.securechatapp.core.api.model.UserInfo;
 import com.kma.securechatapp.core.event.EventBus;
 import com.kma.securechatapp.core.service.RealtimeServiceConnection;
 import com.kma.securechatapp.helper.ImageLoadTask;
+import com.kma.securechatapp.ui.contact.ContactListFragment;
 import com.kma.securechatapp.ui.conversation.InboxActivity;
 import com.kma.securechatapp.utils.common.ImageLoader;
 import com.kma.securechatapp.utils.common.Utils;
@@ -90,6 +92,8 @@ public class UserProfileActivity extends AppCompatActivity {
     @BindView(R.id.ed_profile_name)
     TextInputEditText edProfileName;
 
+    @BindView(R.id.scan_qrcode)
+    ImageView imgBtScanQr;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -212,6 +216,13 @@ public class UserProfileActivity extends AppCompatActivity {
             }
         });
 
+        imgBtScanQr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(UserProfileActivity.this, QrCodeView.class);
+                startActivity(intent);
+            }
+        });
     }
 
     void bindUserInfo(UserInfo info){

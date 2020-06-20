@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
@@ -13,6 +14,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import android.view.KeyEvent;
 
+import com.kma.securechatapp.AppPermission;
 import com.kma.securechatapp.R;
 import com.kma.securechatapp.core.AppData;
 import com.kma.securechatapp.core.api.ApiInterface;
@@ -51,7 +53,7 @@ public class LoginActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         toolbar.setTitle("");
         toolbar.setSubtitle("");
-
+        AppPermission.requireAll(this);
 
     }
     @Override
@@ -102,5 +104,6 @@ public class LoginActivity extends AppCompatActivity {
             context.startActivity(intent);
         }
     }
+
 
 }
