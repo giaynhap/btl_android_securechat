@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.kma.securechatapp.core.api.UnsafeOkHttpClient;
@@ -50,6 +51,7 @@ public class EncryptFileLoader {
                 .url(url).build();
         File f = fileCache.getFile(url);
         if (f.exists()){
+            Log.v("EncrFile","File cache Exist");
             return f;
         }
         InputStream is = client.newCall(request).execute().body().byteStream();
@@ -96,7 +98,7 @@ public class EncryptFileLoader {
     public void loadEncryptFile(String url,byte[] password, EventLoadedEncryptFile e){
         executorService.submit( new FileLoader(url,password,e));
     }
-    public void loadEncryptImage(String url,byte[] password, ImageView view){
+    public void loadEncryptImage(String url,byte[] password, ImageView view, Runnable e){
       Runnable loadAble=  new FileLoader(url,password, new EventLoadedEncryptFile() {
             @Override
             public void onLoaded(int error, File file) {
@@ -108,6 +110,9 @@ public class EncryptFileLoader {
                     ImageDisplayer bd = new ImageDisplayer(bitmap, view);
                     Activity a = (Activity) view.getContext();
                     a.runOnUiThread(bd);
+                    if (e != null){
+                        e.run();
+                    }
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -155,6 +160,7 @@ public class EncryptFileLoader {
         byte[] password;
         FileLoader(String url,byte[]password, EventLoadedEncryptFile e){
             event = e;
+            System.out.println("Load file "+url);
             this.url = url;
             this.password = password;
         }
@@ -179,8 +185,9 @@ public class EncryptFileLoader {
         public void run()
         {
             try {
-                if (bitmap != null)
+                if (bitmap != null) {
                     view.setImageBitmap(bitmap);
+                }
             }catch (Exception e){
 
             }

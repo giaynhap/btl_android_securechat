@@ -133,6 +133,7 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
     boolean isShowSticker = false;
 
     SocketReceiver receiver = new SocketReceiver();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -141,7 +142,6 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
         ButterKnife.bind(this);
         Intent actIntent = getIntent();
         receiver.setListener(this);
-
           uuid = actIntent.getStringExtra("uuid");
         if (uuid == null ){
             onBackPressed();
@@ -169,9 +169,11 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
             inboxViewModel.trigerLoadMessage(0);
             // toolbar.setImageURI()
             ImageLoader.getInstance().loadBitmap(BuildConfig.HOST + "conversation/thumb/" + conversation.UUID + "/" + AppData.getInstance().currentUser.uuid + "?width=80&height=80",bm -> {
+                try {
+                    toolbar.setLogo(new BitmapDrawable(getResources(), CircularImageView.getRoundBitmap(bm, bm.getWidth())));
+                }catch (Exception e){
 
-                toolbar.setLogo(new BitmapDrawable(getResources(), CircularImageView.getRoundBitmap(bm,bm.getWidth())));
-
+                }
             },false);
 
         });

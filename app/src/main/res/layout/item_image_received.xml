@@ -9,6 +9,7 @@
 
 
     <TextView
+
         android:id="@+id/msg_time_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -39,6 +40,7 @@
         android:layout_marginTop="4dp" />
 
     <ImageView
+        android:transitionName="imageView"
         android:id="@+id/text_message_body"
         android:background="@drawable/rounded_rectangle_green"
         android:layout_width="100dp"

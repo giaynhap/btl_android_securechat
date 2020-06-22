@@ -47,6 +47,7 @@ public class SecureChatSystem {
         if (message== null){
             return null;
         }
+
         MessagePlaneText result = new MessagePlaneText();
         result.threadName = message.threadName;
         result.deviceCode = message.deviceCode;

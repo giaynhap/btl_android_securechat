@@ -1,7 +1,9 @@
 package com.kma.securechatapp.adapter.viewholder;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
 import android.net.Uri;
 import android.view.View;
@@ -9,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kma.securechatapp.BuildConfig;
@@ -18,6 +21,7 @@ import com.kma.securechatapp.core.AppData;
 import com.kma.securechatapp.core.api.model.MessagePlaneText;
 import com.kma.securechatapp.helper.ImageLoadTask;
 import com.kma.securechatapp.ui.control.ImagePreview;
+import com.kma.securechatapp.ui.conversation.InboxActivity;
 import com.kma.securechatapp.utils.common.EncryptFileLoader;
 import com.kma.securechatapp.utils.common.ImageLoader;
 import com.kma.securechatapp.utils.common.StringHelper;
@@ -49,7 +53,7 @@ public class MessageReceivederViewHolder extends RecyclerView.ViewHolder {
     public void bind (MessagePlaneText msg, boolean hideIcon){
         if (msg.type == 1) {
            // ImageLoader.getInstance().DisplayImage(BuildConfig.HOST +msg.mesage+"?type=small",(ImageView)txtBody);
-            EncryptFileLoader.getInstance().loadEncryptImage(BuildConfig.HOST +msg.mesage,msg.password,(ImageView)txtBody);
+            EncryptFileLoader.getInstance().loadEncryptImage(BuildConfig.HOST +msg.mesage,msg.password,(ImageView)txtBody,null);
 
             txtBody.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -57,9 +61,13 @@ public class MessageReceivederViewHolder extends RecyclerView.ViewHolder {
                  //   MainActivity.instance.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.HOST +msg.mesage)));
                     Context context = MessageReceivederViewHolder.this.itemView.getContext();
                     Intent intent = new Intent( context, ImagePreview.class);
+                    ImagePreview.bitmap  = ((BitmapDrawable)((ImageView)txtBody).getDrawable()).getBitmap();
                     intent.putExtra("url",BuildConfig.HOST +msg.mesage);
                     intent.putExtra("key",msg.password);
-                    context.startActivity(intent);
+                    ActivityOptionsCompat options = ActivityOptionsCompat.
+                            makeSceneTransitionAnimation((Activity)context, (View)txtBody, "imageView");
+
+                    context.startActivity(intent,options.toBundle());
 
                 }
             });

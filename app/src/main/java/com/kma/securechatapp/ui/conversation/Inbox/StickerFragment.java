@@ -84,8 +84,10 @@ public class StickerFragment extends Fragment  {
                 }
                 listAdapter.setStikers(response.body().data);
                 listAdapter.notifyDataSetChanged();
-                Sticker sticker =  listAdapter.getStikers().get(0);
-                itemAdapter.setSticker( sticker.model,sticker.num);
+                if (listAdapter.getStikers().size() > 0) {
+                    Sticker sticker = listAdapter.getStikers().get(0);
+                    itemAdapter.setSticker(sticker.model, sticker.num);
+                }
             }
 
             @Override

@@ -6,13 +6,25 @@
     android:layout_height="match_parent"
     tools:context=".ui.control.ImagePreview">
 
+    <androidx.appcompat.widget.Toolbar
+
+        app:titleMarginStart="32dp"
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"></androidx.appcompat.widget.Toolbar>
+
     <ImageView
+        android:transitionName="imageView"
+        android:src="@mipmap/ic_launcher_foreground"
         android:id="@+id/image_view"
         android:layout_width="0px"
         android:layout_height="0px"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
