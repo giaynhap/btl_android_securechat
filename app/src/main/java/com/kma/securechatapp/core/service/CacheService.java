@@ -6,16 +6,21 @@ import com.kma.securechatapp.core.api.ApiInterface;
 import com.kma.securechatapp.core.api.ApiUtil;
 import com.kma.securechatapp.core.api.model.ApiResponse;
 import com.kma.securechatapp.core.api.model.Conversation;
+import com.kma.securechatapp.core.api.model.Message;
+import com.kma.securechatapp.core.api.model.MessagePlaneText;
 import com.kma.securechatapp.core.api.model.PageResponse;
 import com.kma.securechatapp.core.api.model.UserInfo;
 import com.kma.securechatapp.core.event.EventBus;
 import com.kma.securechatapp.core.realm_model.RConversation;
+import com.kma.securechatapp.core.realm_model.RMessage;
 import com.kma.securechatapp.core.realm_model.RUserInfo;
 import com.kma.securechatapp.core.security.AES;
 import com.kma.securechatapp.core.security.RSAUtil;
+import com.kma.securechatapp.core.security.SecureChatSystem;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -83,6 +88,38 @@ public class CacheService {
         });
     }
 
+    public void fetchMessages(long time, String conversationUuid, byte [] key){
+
+        api.pageMessage(conversationUuid,time).enqueue(new Callback<ApiResponse<List<Message>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<Message>>> call, Response<ApiResponse<List<Message>>> response) {
+                if (response.body() == null){
+                    return;
+                }
+                if (response.body().data == null){
+                    return;
+                }
+
+                List<MessagePlaneText> messages = SecureChatSystem.getInstance().decoder(response.body().data, key);
+
+                rdb.beginTransaction();
+                for (MessagePlaneText msg : messages) {
+                    RMessage rmsg = new RMessage();
+                    rmsg.fromModel(msg);
+                    rdb.insertOrUpdate(rmsg);
+                }
+                rdb.commitTransaction();
+
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<Message>>> call, Throwable t) {
+
+            }
+        });
+
+    }
+
     public RealmResults<RConversation>  queryConversation(){
        return rdb.where(RConversation.class).sort("lastMessageAt", Sort.DESCENDING).findAll();
     }
@@ -105,6 +142,22 @@ public class CacheService {
             return null;
         }
        return user.toModel();
+    }
+
+    public Conversation getConversationInfo(String uuid){
+      return  rdb.where(RConversation.class).equalTo("UUID",uuid).findFirst().toModel();
+    }
+
+    public void updateConversation(Conversation con){
+        rdb.beginTransaction();
+        RConversation rCon = new RConversation();
+        rCon.fromModel(con);
+        rdb.insertOrUpdate(rCon);
+        rdb.commitTransaction();
+    }
+
+    public RealmResults<RMessage> queryMessage(String conversation, Long time ){
+        return rdb.where(RMessage.class).equalTo("threadUuid",conversation).lessThan("time",time).sort("time",Sort.DESCENDING).limit(50).findAll();
     }
 
 

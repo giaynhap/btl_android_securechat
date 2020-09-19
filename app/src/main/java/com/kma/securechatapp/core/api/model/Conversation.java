@@ -33,6 +33,8 @@ public class Conversation {
     @SerializedName("un_read")
     public Integer unRead;
 
+    public String conversationKey = null;
+
     public Conversation(String UUID, String user_uuid, String name) {
         this.UUID = UUID;
         this.user_uuid = user_uuid;
@@ -62,6 +64,9 @@ public class Conversation {
        }
     }
     public String getKey(String uuid){
+        if (conversationKey != null){
+            return conversationKey;
+        }
         if (userConversations == null)
             return null;
         for (UserConversation u : userConversations){
@@ -69,6 +74,7 @@ public class Conversation {
                 if (u.key == null || u.key.isEmpty()){
                     return null;
                 }
+                conversationKey =  u.key;
                 return u.key;
             }
         }

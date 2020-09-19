@@ -157,7 +157,7 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
             }
         });
 
-        toolbar.setTitle("Inbox");
+        InboxActivity.this.getSupportActionBar().setTitle("Inbox");
 
 
         inboxViewModel.getConversationInfo().observe(this,conversation -> {
@@ -165,7 +165,7 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
                 onBackPressed();
                 return;
             }
-            toolbar.setTitle(conversation.name);
+            InboxActivity.this.getSupportActionBar().setTitle(conversation.name);
             inboxViewModel.trigerLoadMessage(0);
             // toolbar.setImageURI()
             ImageLoader.getInstance().loadBitmap(BuildConfig.HOST + "conversation/thumb/" + conversation.UUID + "/" + AppData.getInstance().currentUser.uuid + "?width=80&height=80",bm -> {
@@ -175,6 +175,7 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
 
                 }
             },false);
+
 
         });
         inboxViewModel.getMessages().observe(this,messages->{
@@ -207,6 +208,7 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
 
 
     }
+
 
     void register(){
         IntentFilter filter = new IntentFilter();

@@ -68,12 +68,7 @@ public class ConversationListViewModel extends ViewModel {
 
     }
     public void setConvetsation(List<Conversation> conns){
-      /*  Collections.sort(conns, new Comparator<Conversation>() {
-            @Override
-            public int compare(Conversation a, Conversation b) {
-                return a.lastMessageAt > b.lastMessageAt ? -1 : (  a.lastMessageAt  <  b.lastMessageAt  ) ? 1 : 0;
-            }
-        });*/
+
         listConversation.setValue(conns);
     }
     public LiveData<List<Conversation>> getConversations( ) {

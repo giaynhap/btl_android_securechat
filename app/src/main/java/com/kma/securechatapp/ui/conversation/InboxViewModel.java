@@ -16,8 +16,10 @@ import com.kma.securechatapp.core.api.model.MessagePlaneText;
 import com.kma.securechatapp.core.api.model.PageResponse;
 import com.kma.securechatapp.core.api.model.UserConversation;
 import com.kma.securechatapp.core.api.model.UserInfo;
+import com.kma.securechatapp.core.realm_model.RMessage;
 import com.kma.securechatapp.core.security.RSAUtil;
 import com.kma.securechatapp.core.security.SecureChatSystem;
+import com.kma.securechatapp.core.service.CacheService;
 import com.kma.securechatapp.core.service.RealtimeServiceConnection;
 
 import java.security.InvalidKeyException;
@@ -31,6 +33,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
+import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -58,6 +61,7 @@ public class InboxViewModel extends ViewModel {
     public LiveData<List<MessagePlaneText>> getMessages(){
         return this.listMessage;
     }
+
     public void trigerNewMessage(MessagePlaneText newMessage){
         if (newMessage.encrypted){
             newMessage.mesage = SecureChatSystem.getInstance().decode(newMessage.mesage,key);
@@ -67,7 +71,7 @@ public class InboxViewModel extends ViewModel {
        // cache.add(0,newMessage);
     }
     public void trigerLoadMessage(long time){
-        api.pageMessage(conversationUuid,time).enqueue(new Callback<ApiResponse<List<Message>>>() {
+      /*  api.pageMessage(conversationUuid,time).enqueue(new Callback<ApiResponse<List<Message>>>() {
             @Override
             public void onResponse(Call<ApiResponse<List<Message>>> call, Response<ApiResponse<List<Message>>> response) {
                 if (response.body() == null){
@@ -93,6 +97,9 @@ public class InboxViewModel extends ViewModel {
                 listMessage.setValue(cache);
             }
         });
+    */
+
+      RealmResults<RMessage> rMessages = CacheService.getInstance().queryMessage(conversationUuid,time);
     }
 
     public void cleanCache(){
@@ -103,7 +110,28 @@ public class InboxViewModel extends ViewModel {
     }
     public void setConversationUuid(String conversationUuid){
         this.conversationUuid = conversationUuid;
-        api.getConversation( this.conversationUuid).enqueue(new Callback<ApiResponse<Conversation>>() {
+        Conversation con =  CacheService.getInstance().getConversationInfo(conversationUuid);
+
+        conversation = con;
+        String ukey = conversation.getKey(AppData.getInstance().currentUser.uuid);
+
+        if (ukey == null){
+            String seckey = makeKey();
+            conversation.conversationKey = seckey;
+            CacheService.getInstance().updateConversation(conversation);
+        }else{
+            try {
+                key = RSAUtil.RSADecryptBuffer(RSAUtil.base64Decode(ukey),AppData.getInstance().getPrivateKey());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+        conversationInfo.setValue(conversation);
+
+
+       /* api.getConversation( this.conversationUuid).enqueue(new Callback<ApiResponse<Conversation>>() {
             @Override
             public void onResponse(Call<ApiResponse<Conversation>> call, Response<ApiResponse<Conversation>> response) {
                 if (response.body() != null) {
@@ -130,29 +158,35 @@ public class InboxViewModel extends ViewModel {
                 conversationInfo.setValue(null);
             }
         });
+        */
+
     }
-    public void makeKey(){
+    public String  makeKey(){
         KeyGenerator keyGen = null;
         try {
             keyGen = KeyGenerator.getInstance("AES");
             keyGen.init(256);
             SecretKey secretKey = keyGen.generateKey();
             byte[] buffKey = secretKey.getEncoded();
-
+            String mySeckey = "";
             List<UserConversation> keys = new ArrayList<UserConversation>();
             for (UserInfo u : conversation.users){
                 UserConversation uc = new UserConversation();
                 uc.key =  RSAUtil.base64Encode(RSAUtil.RSAEncrypt(buffKey,u.getPublicKey()));
                 uc.userUuid = u.uuid;
                 keys.add(uc);
+                if (u.uuid == AppData.getInstance().userUUID){
+                    mySeckey =  uc.key;
+                }
             }
             api.updateKey(conversation.UUID,keys).execute();
             key = buffKey;
-
+            return   mySeckey;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
 
     }
 

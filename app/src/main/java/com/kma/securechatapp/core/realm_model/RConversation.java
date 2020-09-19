@@ -1,6 +1,7 @@
 package com.kma.securechatapp.core.realm_model;
 
 import com.google.gson.annotations.SerializedName;
+import com.kma.securechatapp.core.AppData;
 import com.kma.securechatapp.core.api.model.Conversation;
 import com.kma.securechatapp.core.api.model.UserConversation;
 import com.kma.securechatapp.core.api.model.UserInfo;
@@ -28,7 +29,7 @@ public class RConversation extends RealmObject implements  ChatRealmObject<Conve
 
     public Integer unRead;
 
-    public byte[] password;
+    public String password;
 
     public RealmList<RUserInfo> users;
 
@@ -41,13 +42,18 @@ public class RConversation extends RealmObject implements  ChatRealmObject<Conve
         this.lastMessageAt = con.lastMessageAt;
         this.name = con.name;
         this.user_uuid = con.user_uuid;
+
+        if ( AppData.getInstance().userUUID != null ) {
+            this.password = con.getKey(AppData.getInstance().userUUID);
+        }
+
         users = new RealmList<>();
         for (UserInfo info: con.users){
             RUserInfo rInfo = new RUserInfo();
             rInfo.fromModel(info);
             users.add(rInfo);
         }
-    }
+}
 
     @Override
     public Conversation toModel(){
@@ -57,6 +63,8 @@ public class RConversation extends RealmObject implements  ChatRealmObject<Conve
         con.lastMessageAt = this.lastMessageAt;
         con.unRead = this.unRead;
         con.users = new ArrayList<>();
+        con.conversationKey = this.password;
+
         for (RUserInfo rInfo: this.users){
             UserInfo u = rInfo.toModel();
             con.users.add(u);
