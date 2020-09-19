@@ -13,10 +13,13 @@ import com.kma.securechatapp.core.realm_model.RConversation;
 import com.kma.securechatapp.core.service.CacheService;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import io.realm.OrderedCollectionChangeSet;
 import io.realm.OrderedRealmCollectionChangeListener;
+import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -32,6 +35,8 @@ public class ConversationListViewModel extends ViewModel {
     private MutableLiveData<List<Conversation>> listConversation;
     private MutableLiveData<List<Contact>> listOnline;
     List<Conversation> cache = null;
+    RealmResults <RConversation> conversations;
+
     public ConversationListViewModel() {
         listConversation = new MutableLiveData<>();
         listOnline = new MutableLiveData<>();
@@ -40,21 +45,35 @@ public class ConversationListViewModel extends ViewModel {
 
     }
     public void registEvent(){
-        RealmResults <RConversation> conversations =  CacheService.getInstance().queryConversation();
-        conversations.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<RConversation>>() {
+
+        conversations =  CacheService.getInstance().queryConversation();
+
+        conversations.addChangeListener(new RealmChangeListener<RealmResults<RConversation>>() {
             @Override
-            public void onChange(RealmResults<RConversation> conversations, OrderedCollectionChangeSet changeSet) {
+            public void onChange(RealmResults<RConversation> rConversations) {
                 ArrayList<Conversation> conns = new ArrayList<>();
                 for (RConversation rlmodel : conversations) {
                     conns.add(rlmodel.toModel());
                 }
-                listConversation.setValue(conns);
+                setConvetsation(conns);
             }
         });
+
+
         ArrayList<Conversation> conns = new ArrayList<>();
         for (RConversation rlmodel : conversations) {
             conns.add(rlmodel.toModel());
         }
+        setConvetsation(conns);
+
+    }
+    public void setConvetsation(List<Conversation> conns){
+      /*  Collections.sort(conns, new Comparator<Conversation>() {
+            @Override
+            public int compare(Conversation a, Conversation b) {
+                return a.lastMessageAt > b.lastMessageAt ? -1 : (  a.lastMessageAt  <  b.lastMessageAt  ) ? 1 : 0;
+            }
+        });*/
         listConversation.setValue(conns);
     }
     public LiveData<List<Conversation>> getConversations( ) {

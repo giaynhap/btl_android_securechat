@@ -5,8 +5,10 @@ import com.kma.securechatapp.core.api.model.Conversation;
 import com.kma.securechatapp.core.api.model.UserConversation;
 import com.kma.securechatapp.core.api.model.UserInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -28,6 +30,8 @@ public class RConversation extends RealmObject implements  ChatRealmObject<Conve
 
     public byte[] password;
 
+    public RealmList<RUserInfo> users;
+
     @Override
     public  void fromModel(Conversation con){
         this.UUID = con.UUID;
@@ -37,6 +41,12 @@ public class RConversation extends RealmObject implements  ChatRealmObject<Conve
         this.lastMessageAt = con.lastMessageAt;
         this.name = con.name;
         this.user_uuid = con.user_uuid;
+        users = new RealmList<>();
+        for (UserInfo info: con.users){
+            RUserInfo rInfo = new RUserInfo();
+            rInfo.fromModel(info);
+            users.add(rInfo);
+        }
     }
 
     @Override
@@ -46,6 +56,11 @@ public class RConversation extends RealmObject implements  ChatRealmObject<Conve
         con.lastMessage = this.lastMessage;
         con.lastMessageAt = this.lastMessageAt;
         con.unRead = this.unRead;
+        con.users = new ArrayList<>();
+        for (RUserInfo rInfo: this.users){
+            UserInfo u = rInfo.toModel();
+            con.users.add(u);
+        }
         return con;
     }
 
