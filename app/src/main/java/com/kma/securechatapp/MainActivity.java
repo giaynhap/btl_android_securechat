@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.StrictMode;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -22,6 +23,7 @@ import com.kma.securechatapp.core.api.model.ApiResponse;
 import com.kma.securechatapp.core.api.model.MessagePlaneText;
 import com.kma.securechatapp.core.api.model.UserInfo;
 import com.kma.securechatapp.core.event.EventBus;
+import com.kma.securechatapp.core.service.CacheService;
 import com.kma.securechatapp.core.service.DataService;
 import com.kma.securechatapp.core.service.RealtimeService;
 import com.kma.securechatapp.core.service.RealtimeServiceConnection;
@@ -45,6 +47,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -124,31 +127,24 @@ public class MainActivity extends AppCompatActivity {
         if (DataService.getInstance(this).getToken() != null) {
 
             AppData.getInstance().setToken(DataService.getInstance(this).getToken());
-
-            try {
-                AppData.getInstance().currentUser = api.getCurrenUserInfo().execute().body().data;
-            } catch (Exception e) {
-                AppData.getInstance().currentUser = null;
-            }
-            if (AppData.getInstance().currentUser == null){
-                AppData.getInstance().setToken(null);
-                DataService.getInstance(this).storeToken(null,null);
-            }else{
-                AppData.getInstance().setRefreshToken(DataService.getInstance(this).getRefreshtoken());
-                DataService.getInstance(this).storeUserUuid(AppData.getInstance().currentUser.uuid);
-
-            }
+            AppData.getInstance().setRefreshToken(DataService.getInstance(this).getRefreshtoken());
+            AppData.getInstance().setUserUUID(DataService.getInstance(this).getUserUuid());
+            AppData.getInstance().account = DataService.getInstance(this).getUserAccount();
         }
 
         RealtimeServiceConnection.getInstance().bindService(this);
-        if (AppData.getInstance().getToken() == null) {
+       /* if (AppData.getInstance().getToken() == null) {
             Intent intent2 = new Intent(this, LoginActivity.class);
             startActivity(intent2);
 
         }else{
             DataService.getInstance(null).save();
             EventBus.getInstance().pushOnLogin(AppData.getInstance().currentUser);
-        }
+        }*/
+
+        Intent intent2 = new Intent(this, LoginActivity.class);
+        startActivity(intent2);
+
         DataService.getInstance(null).save();
 
         getSupportActionBar().hide();
@@ -178,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
         evenBus = new EventBus.EvenBusAction(){
             @Override
             public void onNetworkStateChange(int state){
-
+                Log.d("GIAYNHAP","NET WORD STATE "+state);
             }
             @Override
             public  void onChangeProfile(){
@@ -190,15 +186,29 @@ public class MainActivity extends AppCompatActivity {
                     MainActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-
                             RealtimeServiceConnection.getInstance().restart();
                         }
                     });
-                    LoginActivity.showInputPass(MainActivity.this,api);
+
+                    CacheService.getInstance().init(MainActivity.this,CacheService.getInstance().accountToDbName(AppData.getInstance().userUUID),AppData.getInstance().password);
+
+                    if (AppData.getInstance().currentUser != null ) {
+                        // online
+                        LoginActivity.showInputPass(MainActivity.this,api);
+                        CacheService.getInstance().saveUser(AppData.getInstance().currentUser, AppData.getInstance().account);
+                    } else {
+                        // offline login
+                        AppData.getInstance().currentUser =  CacheService.getInstance().getUser(AppData.getInstance().account);
+                    }
+
+
                     bindLeftHeader();
                     EventBus.getInstance().pushOnRefreshConversation();
                     EventBus.getInstance().pushOnRefreshContact();
+
                 } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
                     e.printStackTrace();
                 }
             }

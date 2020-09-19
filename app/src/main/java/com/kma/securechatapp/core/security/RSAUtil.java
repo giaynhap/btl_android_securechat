@@ -101,7 +101,10 @@ public class RSAUtil {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         return md.digest(input.getBytes("UTF-8"));
     }
-
+    public static byte[] getSHA512(String input) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        MessageDigest md = MessageDigest.getInstance("SHA-512");
+        return md.digest(input.getBytes("UTF-8"));
+    }
 
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
     public static String bytesToHex(byte[] bytes) {

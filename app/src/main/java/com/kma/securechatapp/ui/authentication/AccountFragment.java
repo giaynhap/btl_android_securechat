@@ -21,6 +21,8 @@ import com.kma.securechatapp.core.api.ApiInterface;
 import com.kma.securechatapp.core.api.ApiUtil;
 import com.kma.securechatapp.core.api.model.ApiResponse;
 import com.kma.securechatapp.core.api.model.UserInfo;
+import com.kma.securechatapp.core.service.CacheService;
+import com.kma.securechatapp.core.service.DataService;
 import com.kma.securechatapp.helper.CommonHelper;
 import com.kma.securechatapp.ui.profile.QrCodeView;
 import com.kma.securechatapp.ui.profile.UserProfileActivity;
@@ -49,7 +51,14 @@ public class AccountFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_login, container, false);
         ButterKnife.bind(this, root);
         navController = NavHostFragment.findNavController(this);
+        if ( !AppData.getInstance().opened) {
+            if (AppData.getInstance().account != null && AppData.getInstance().userUUID != null) {
+                navController.navigate(R.id.navigation_password);
+            }
+            AppData.getInstance().opened = true;
+        }
         return root;
+
     }
 
     @OnClick(R.id.btn_signup)
@@ -99,6 +108,8 @@ public class AccountFragment extends Fragment {
                 }
 
                 AppData.getInstance().currentUser = response.body().data;
+                AppData.getInstance().userUUID = response.body().data.uuid;
+                DataService.getInstance(null).storeUserAccount( AppData.getInstance().account) ;
 
                 navController.navigate(R.id.navigation_password);
 

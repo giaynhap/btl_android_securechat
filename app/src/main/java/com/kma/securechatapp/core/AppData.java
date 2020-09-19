@@ -16,7 +16,9 @@ public class AppData {
      public String deviceId = null;
      public UserKey userKey = null;
      public String password = "md5";
+     public String userUUID = null;
      private PrivateKey privateKey = null;
+    public  boolean opened = false;
 
 
      public UserInfo currentUser;
@@ -45,6 +47,10 @@ public class AppData {
         this.refreshToken = refreshToken;
     }
 
+    public void setUserUUID(String uuid){
+         this.userUUID = uuid;
+    }
+
     public PrivateKey getPrivateKey(){
 
          if ( privateKey == null){
@@ -65,5 +71,6 @@ public class AppData {
         this.currentUser = null;
         this.account = null;
         this.refreshToken = null;
+        this.userUUID = null;
     }
 }

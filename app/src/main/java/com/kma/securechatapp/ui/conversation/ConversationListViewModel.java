@@ -9,11 +9,15 @@ import com.kma.securechatapp.core.api.ApiUtil;
 import com.kma.securechatapp.core.api.model.ApiResponse;
 import com.kma.securechatapp.core.api.model.Contact;
 import com.kma.securechatapp.core.api.model.Conversation;
-import com.kma.securechatapp.core.api.model.PageResponse;
-import com.kma.securechatapp.core.api.model.UserInfo;
+import com.kma.securechatapp.core.realm_model.RConversation;
+import com.kma.securechatapp.core.service.CacheService;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import io.realm.OrderedCollectionChangeSet;
+import io.realm.OrderedRealmCollectionChangeListener;
+import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -31,6 +35,27 @@ public class ConversationListViewModel extends ViewModel {
     public ConversationListViewModel() {
         listConversation = new MutableLiveData<>();
         listOnline = new MutableLiveData<>();
+
+
+
+    }
+    public void registEvent(){
+        RealmResults <RConversation> conversations =  CacheService.getInstance().queryConversation();
+        conversations.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<RConversation>>() {
+            @Override
+            public void onChange(RealmResults<RConversation> conversations, OrderedCollectionChangeSet changeSet) {
+                ArrayList<Conversation> conns = new ArrayList<>();
+                for (RConversation rlmodel : conversations) {
+                    conns.add(rlmodel.toModel());
+                }
+                listConversation.setValue(conns);
+            }
+        });
+        ArrayList<Conversation> conns = new ArrayList<>();
+        for (RConversation rlmodel : conversations) {
+            conns.add(rlmodel.toModel());
+        }
+        listConversation.setValue(conns);
     }
     public LiveData<List<Conversation>> getConversations( ) {
 
@@ -61,6 +86,10 @@ public class ConversationListViewModel extends ViewModel {
 
 
     public void trigerLoadData(int page){
+        CacheService.getInstance().fetchConversation(page);
+
+        return;
+        /*
         api.pageConversation(page).enqueue(new Callback<ApiResponse<PageResponse<Conversation>>>() {
             @Override
             public void onResponse(Call<ApiResponse<PageResponse<Conversation>>> call, Response<ApiResponse<PageResponse<Conversation>>> response) {
@@ -87,6 +116,6 @@ public class ConversationListViewModel extends ViewModel {
 
 
             }
-        });
+        });*/
     }
 }

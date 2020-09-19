@@ -4,7 +4,10 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
-public class MessagePlaneText implements Serializable  {
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
+public class MessagePlaneText  implements Serializable  {
     @SerializedName("uuid")
     public String uuid;
 

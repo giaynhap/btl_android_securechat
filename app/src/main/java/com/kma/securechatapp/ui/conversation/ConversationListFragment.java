@@ -68,8 +68,9 @@ public class ConversationListFragment extends Fragment implements SwipeRefreshLa
         swipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
-                swipeRefreshLayout.setRefreshing(true);
                 conversationListViewModel.trigerLoadData(0);
+
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
 
@@ -93,7 +94,6 @@ public class ConversationListFragment extends Fragment implements SwipeRefreshLa
         conversationListViewModel.getConversations().observe(this,conversations -> {
             conversationAdapter.setConversationList(conversations);
             conversationAdapter.notifyDataSetChanged();
-            swipeRefreshLayout.setRefreshing(false);
         });
 
         conversationListViewModel.getListOnline().observe( this , users->{
@@ -113,13 +113,14 @@ public class ConversationListFragment extends Fragment implements SwipeRefreshLa
             }
         };
         EventBus.getInstance().addEvent(evenBus);
-
+        conversationListViewModel.registEvent();
     }
 
     @Override
     public void onRefresh() {
         conversationListViewModel.trigerLoadOnline();
         conversationListViewModel.trigerLoadData(0);
+         swipeRefreshLayout.setRefreshing(false);
     }
 
     @Override

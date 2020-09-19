@@ -31,7 +31,7 @@ public class ConversationAdapter extends RecyclerView.Adapter {
         ConversationViewHolder conversationHolder = (ConversationViewHolder)holder;
         Conversation conversation = this.conversationList.get(position);
         String avatar_id = "";
-        if (conversation.users.size()>1){
+        if (conversation.users != null && conversation.users.size()>1){
             avatar_id = conversation.users.get(1).uuid;
         }else{
             avatar_id = conversation.user_uuid;

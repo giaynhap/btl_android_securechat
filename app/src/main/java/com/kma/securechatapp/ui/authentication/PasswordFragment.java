@@ -27,11 +27,13 @@ import com.kma.securechatapp.core.api.model.AuthenResponse;
 import com.kma.securechatapp.core.api.model.Device;
 import com.kma.securechatapp.core.api.model.UserInfo;
 import com.kma.securechatapp.core.event.EventBus;
+import com.kma.securechatapp.core.service.CacheService;
 import com.kma.securechatapp.core.service.DataService;
 import com.kma.securechatapp.core.service.RealtimeService;
 import com.kma.securechatapp.core.service.RealtimeServiceConnection;
 import com.kma.securechatapp.helper.CommonHelper;
 import com.kma.securechatapp.utils.common.ImageLoader;
+import com.kma.securechatapp.utils.common.Utils;
 
 import java.io.IOException;
 
@@ -69,9 +71,17 @@ public class PasswordFragment extends Fragment {
         ButterKnife.bind(this, root);
         optLayout.setVisibility(View.GONE);
         NavController navController = NavHostFragment.findNavController(this);
-        CheckOpt();
-        ImageLoader.getInstance().DisplayImage(ImageLoader.getUserAvatarUrl(AppData.getInstance().currentUser.uuid,200,200),loginAvatar);
-        loginName.setText(AppData.getInstance().currentUser.name);
+
+        if (AppData.getInstance().currentUser != null) {
+            CheckOpt();
+            ImageLoader.getInstance().DisplayImage(ImageLoader.getUserAvatarUrl(AppData.getInstance().currentUser.uuid,200,200),loginAvatar);
+            loginName.setText(AppData.getInstance().currentUser.name);
+        } else {
+            ImageLoader.getInstance().DisplayImage(ImageLoader.getUserAvatarUrl(AppData.getInstance().userUUID,200,200),loginAvatar);
+            loginName.setText(AppData.getInstance().account);
+        }
+
+
         return root;
     }
 
@@ -114,6 +124,18 @@ public class PasswordFragment extends Fragment {
         auth.device = new Device();
         auth.device.deviceCode = AppData.getInstance().deviceId;
         auth.device.deviceOs = "android";
+        if ( Utils.haveNetworkConnection(this.getContext())) {
+            onlineLogin(auth);
+        } else {
+
+            onLoginSuccess();
+
+        }
+
+    }
+
+
+    void onlineLogin(AuthenRequest auth){
 
         api.login(auth).enqueue(new Callback<ApiResponse<AuthenResponse>>() {
             @Override
@@ -127,7 +149,6 @@ public class PasswordFragment extends Fragment {
                     }
                     return;
                 }
-
                 // login success
                 AppData.getInstance().setToken(response.body().data.token);
                 AppData.getInstance().setRefreshToken(response.body().data.refreshToken);
@@ -139,8 +160,6 @@ public class PasswordFragment extends Fragment {
                 DataService.getInstance(PasswordFragment.this.getContext()).storeToken(response.body().data.token,response.body().data.refreshToken);
                 DataService.getInstance(null).storeUserUuid( AppData.getInstance().currentUser.uuid);
                 //end screen
-
-                DataService.getInstance(null).save();
                 DataService.getInstance(null).save();
 
                 onLoginSuccess();
@@ -153,7 +172,6 @@ public class PasswordFragment extends Fragment {
                 Toast.makeText(PasswordFragment.this.getContext(),"Request error !",Toast.LENGTH_SHORT).show();
             }
         });
-
 
     }
     void onLoginSuccess(){
