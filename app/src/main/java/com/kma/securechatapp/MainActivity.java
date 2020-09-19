@@ -71,6 +71,9 @@ public class MainActivity extends AppCompatActivity {
     NavController navController;
     EventBus.EvenBusAction evenBus;
 
+    @BindView(R.id.main_status)
+    TextView tvMainStatus;
+
     class NavigateHeaderBind{
         @BindView(R.id.h_user_name)
         TextView leftUserName;
@@ -100,6 +103,9 @@ public class MainActivity extends AppCompatActivity {
         StrictMode.setThreadPolicy(policy);
         ImageLoader.getInstance().bind(this);
         EncryptFileLoader.getInstance().bind(this);
+
+        tvMainStatus.setText("Offline mode");
+        tvMainStatus.setVisibility(View.GONE);
 
         Intent intent = new Intent(MainActivity.this, RealtimeService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -195,12 +201,12 @@ public class MainActivity extends AppCompatActivity {
                     if (AppData.getInstance().currentUser != null ) {
                         // online
                         LoginActivity.showInputPass(MainActivity.this,api);
-                        CacheService.getInstance().saveUser(AppData.getInstance().currentUser, AppData.getInstance().account);
                     } else {
+                        tvMainStatus.setVisibility(View.VISIBLE);
                         // offline login
-                        AppData.getInstance().currentUser =  CacheService.getInstance().getUser(AppData.getInstance().account);
+                        AppData.getInstance().currentUser =  CacheService.getInstance().getUser(AppData.getInstance().userUUID);
                     }
-
+                    CacheService.getInstance().saveUser(AppData.getInstance().currentUser, AppData.getInstance().account);
 
                     bindLeftHeader();
                     EventBus.getInstance().pushOnRefreshConversation();

@@ -33,6 +33,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
+import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -49,6 +50,7 @@ public class InboxViewModel extends ViewModel {
     private MutableLiveData<List<MessagePlaneText>> listMessage;
     public MutableLiveData<MessagePlaneText> message;
     private MutableLiveData<Conversation> conversationInfo;
+    RealmResults<RMessage> rMessages;
     List<MessagePlaneText> cache = null;
     public InboxViewModel() {
         listMessage = new MutableLiveData<>();
@@ -67,7 +69,9 @@ public class InboxViewModel extends ViewModel {
             newMessage.mesage = SecureChatSystem.getInstance().decode(newMessage.mesage,key);
             newMessage.password = key;
         }
+
         message.setValue(newMessage);
+        CacheService.getInstance().addNewMessage(newMessage);
        // cache.add(0,newMessage);
     }
     public void trigerLoadMessage(long time){
@@ -99,7 +103,32 @@ public class InboxViewModel extends ViewModel {
         });
     */
 
-      RealmResults<RMessage> rMessages = CacheService.getInstance().queryMessage(conversationUuid,time);
+       rMessages = CacheService.getInstance().queryMessage(conversationUuid,time);
+      if ( (time == 0 && rMessages.size() == 0) || (rMessages.size() > 0 && time == 0 && rMessages.first().time < conversation.lastMessageAt ) ){
+
+          rMessages.addChangeListener(new RealmChangeListener<RealmResults<RMessage>>() {
+              @Override
+              public void onChange(RealmResults<RMessage> rMessages) {
+                  setMessages(rMessages);
+                  rMessages.removeAllChangeListeners();
+              }
+          });
+          CacheService.getInstance().fetchMessages(time,conversationUuid,key);
+      } else {
+          setMessages(rMessages);
+      }
+    }
+    private void setMessages( RealmResults<RMessage> rmesgs ){
+        List<MessagePlaneText> messages = new ArrayList<>();
+        for (RMessage msg : rmesgs){
+            messages.add(msg.toModel());
+        }
+        if (cache == null){
+            cache = messages;
+        }else{
+            cache.addAll(messages);
+        }
+        listMessage.setValue(cache);
     }
 
     public void cleanCache(){

@@ -71,7 +71,9 @@ public class MessageAdapter extends   RecyclerView.Adapter {
     @Override
     public int getItemViewType(int position) {
         MessagePlaneText message = (MessagePlaneText) messages.get(position);
-
+        if (message == null){
+            return 0;
+        }
         if (message.senderUuid.equals(AppData.getInstance().currentUser.uuid)) {
             // If the current user is the sender of the message
             if (message.type==0)

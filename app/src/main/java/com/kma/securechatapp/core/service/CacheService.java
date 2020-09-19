@@ -133,11 +133,11 @@ public class CacheService {
         rdb.commitTransaction();
     }
 
-    public UserInfo getUser(String userName){
+    public UserInfo getUser(String uuid){
         if ( rdb == null){
             return null;
         }
-        RUserInfo user =  rdb.where(RUserInfo.class).equalTo("userName",userName).findFirst();
+        RUserInfo user =  rdb.where(RUserInfo.class).equalTo("uuid",uuid).findFirst();
         if ( user == null ){
             return null;
         }
@@ -156,8 +156,19 @@ public class CacheService {
         rdb.commitTransaction();
     }
 
+    public void addNewMessage(MessagePlaneText message){
+        RMessage rmesg = new RMessage();
+        rmesg.fromModel(message);
+        rdb.beginTransaction();
+        rdb.insertOrUpdate(rmesg);
+        rdb.commitTransaction();
+    }
     public RealmResults<RMessage> queryMessage(String conversation, Long time ){
-        return rdb.where(RMessage.class).equalTo("threadUuid",conversation).lessThan("time",time).sort("time",Sort.DESCENDING).limit(50).findAll();
+        if (time  > 0 )
+            return rdb.where(RMessage.class).equalTo("threadUuid",conversation).lessThan("time",time).sort("time",Sort.DESCENDING).findAll();
+        else
+            return rdb.where(RMessage.class).equalTo("threadUuid",conversation).sort("time",Sort.DESCENDING).findAll();
+
     }
 
 

@@ -19,7 +19,7 @@ public class RMessage  extends RealmObject implements  ChatRealmObject<MessagePl
     public Long time;
     public String mesage;
     public String senderUuid;
-    public UserInfo sender;
+    public RUserInfo sender;
     public  String threadName ;
     public  boolean encrypted;
 
@@ -36,11 +36,27 @@ public class RMessage  extends RealmObject implements  ChatRealmObject<MessagePl
         this.senderUuid = con.senderUuid;
         this.threadName = con.threadName;
         this.encrypted = con.encrypted;
+        this.sender = new RUserInfo();
+        this.sender.fromModel(con.sender);
     }
 
     @Override
     public MessagePlaneText toModel() {
-        return null;
+        MessagePlaneText messagePlaneText = new MessagePlaneText();
+        messagePlaneText.threadName = this.threadName;
+        messagePlaneText.deviceCode = this.deviceCode;
+        messagePlaneText.encrypted = this.encrypted;
+        messagePlaneText.mesage = this.mesage;
+        messagePlaneText.senderUuid = this.senderUuid;
+        messagePlaneText.userUuid = this.userUuid;
+        messagePlaneText.time = this.time;
+        messagePlaneText.type = this.type;
+        messagePlaneText.uuid = this.uuid;
+        if (this.sender != null) {
+            messagePlaneText.sender = this.sender.toModel();
+        }
+
+        return messagePlaneText;
     }
 
 }

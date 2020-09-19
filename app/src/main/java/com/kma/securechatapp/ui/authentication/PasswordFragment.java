@@ -124,10 +124,9 @@ public class PasswordFragment extends Fragment {
         auth.device = new Device();
         auth.device.deviceCode = AppData.getInstance().deviceId;
         auth.device.deviceOs = "android";
-        if ( Utils.haveNetworkConnection(this.getContext())) {
+        if ( Utils.haveNetworkConnection(this.getContext())  ) {
             onlineLogin(auth);
         } else {
-
             onLoginSuccess();
 
         }
