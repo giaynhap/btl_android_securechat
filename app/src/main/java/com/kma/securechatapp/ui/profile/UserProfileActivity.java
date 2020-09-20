@@ -118,7 +118,7 @@ public class UserProfileActivity extends AppCompatActivity {
         Intent intent = this.getIntent();
         type = (intent.getAction().equals("view_user"))?1:0;
         uuid = intent.getStringExtra("uuid");
-        if (uuid.equals(AppData.getInstance().currentUser.uuid)){
+        if (uuid.equals(AppData.getInstance().userUUID)){
             type = 0;
         }
 
