@@ -87,11 +87,13 @@ public class MessageSenderViewHolder extends RecyclerView.ViewHolder {
         }
         else if (msg.type == 3)
         {
-            String[] split = msg.mesage.split("::");
-            if (split.length < 2)
-                return;
-            int index = Integer.decode(split[1]);
-            ImageLoader.getInstance().DisplayImage(ImageLoader.getStickerUrl(split[0],index),(ImageView)txtBody);
+            if (msg.mesage != null ){
+                String[] split = msg.mesage.split("::");
+                if (split.length < 2)
+                    return;
+                int index = Integer.decode(split[1]);
+                ImageLoader.getInstance().DisplayImage(ImageLoader.getStickerUrl(split[0],index),(ImageView)txtBody);
+            }
         }
 
 

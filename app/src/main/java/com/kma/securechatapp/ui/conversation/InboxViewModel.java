@@ -68,6 +68,7 @@ public class InboxViewModel extends ViewModel {
         if (newMessage.encrypted){
             newMessage.mesage = SecureChatSystem.getInstance().decode(newMessage.mesage,key);
             newMessage.password = key;
+            newMessage.encrypted = false;
         }
 
         message.setValue(newMessage);
@@ -123,10 +124,14 @@ public class InboxViewModel extends ViewModel {
         for (RMessage msg : rmesgs){
             MessagePlaneText plaintText = msg.toModel();
             if (plaintText.encrypted){
-                plaintText.mesage = SecureChatSystem.getInstance().decode(plaintText.mesage,key);
-                plaintText.password = key;
-                plaintText.encrypted = false;
-                CacheService.getInstance().addNewMessage(plaintText);
+                String message = SecureChatSystem.getInstance().decode(plaintText.mesage,key);
+                if (message != null) {
+                    plaintText.mesage = message;
+                    plaintText.encrypted = false;
+                    plaintText.password = key;
+                    CacheService.getInstance().addNewMessage(plaintText);
+                }
+
             }
             messages.add(plaintText);
         }
