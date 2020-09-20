@@ -49,9 +49,12 @@ public class CommonHelper {
 
     public static void hideLoading(){
         if (loading==null) return;
+        try {
+            loading.dismiss();
+            loading = null;
+        }catch (Exception e){
 
-        loading.dismiss();
-        loading = null;
+        }
     }
 
 }

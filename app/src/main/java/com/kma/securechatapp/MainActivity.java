@@ -22,6 +22,7 @@ import com.kma.securechatapp.core.api.ApiUtil;
 import com.kma.securechatapp.core.api.model.ApiResponse;
 import com.kma.securechatapp.core.api.model.MessagePlaneText;
 import com.kma.securechatapp.core.api.model.UserInfo;
+import com.kma.securechatapp.core.api.model.UserKey;
 import com.kma.securechatapp.core.event.EventBus;
 import com.kma.securechatapp.core.service.CacheService;
 import com.kma.securechatapp.core.service.DataService;
@@ -179,6 +180,14 @@ public class MainActivity extends AppCompatActivity {
 
         evenBus = new EventBus.EvenBusAction(){
             @Override
+            public void onConnectedSocket(){
+                MainActivity.this.tvMainStatus.setVisibility(View.GONE);
+            }
+            @Override
+            public void onDisconnectedSocket(){
+                MainActivity.this.tvMainStatus.setVisibility(View.VISIBLE);
+            }
+            @Override
             public void onNetworkStateChange(int state){
                 Log.d("GIAYNHAP","NET WORD STATE "+state);
             }
@@ -205,6 +214,21 @@ public class MainActivity extends AppCompatActivity {
                         tvMainStatus.setVisibility(View.VISIBLE);
                         // offline login
                         AppData.getInstance().currentUser =  CacheService.getInstance().getUser(AppData.getInstance().userUUID);
+                        //restore user key
+
+                        String privateKey = DataService.getInstance(MainActivity.this.getApplicationContext()).getPrivateKey(AppData.getInstance().userUUID,AppData.getInstance().password);
+                        if (privateKey != null){
+                            UserKey userKey  =  new UserKey(null,null);
+                            userKey.publicKey =  AppData.getInstance().currentUser.publicKey;
+                            userKey.privateKey = privateKey ;
+                            AppData.getInstance().userKey = userKey;
+
+                            if (AppData.getInstance().getPrivateKey() == null){
+                                EventBus.getInstance().noticShow("Chưa thiết lập private key","Lỗi đăng nhập");
+                            }
+                        }
+
+
                     }
                     CacheService.getInstance().saveUser(AppData.getInstance().currentUser, AppData.getInstance().account);
 
@@ -240,6 +264,7 @@ public class MainActivity extends AppCompatActivity {
         navHeaderBind.leftUserStatus.setText("Online");
         ImageLoader.getInstance().DisplayImage(ImageLoader.getUserAvatarUrl(AppData.getInstance().currentUser.uuid,200,200),navHeaderBind.leftUserAvatr);
     }
+
     void bindNavLeft(){
         navLeft.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {

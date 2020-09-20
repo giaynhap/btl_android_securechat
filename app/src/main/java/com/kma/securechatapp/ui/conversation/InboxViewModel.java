@@ -121,7 +121,14 @@ public class InboxViewModel extends ViewModel {
     private void setMessages( RealmResults<RMessage> rmesgs ){
         List<MessagePlaneText> messages = new ArrayList<>();
         for (RMessage msg : rmesgs){
-            messages.add(msg.toModel());
+            MessagePlaneText plaintText = msg.toModel();
+            if (plaintText.encrypted){
+                plaintText.mesage = SecureChatSystem.getInstance().decode(plaintText.mesage,key);
+                plaintText.password = key;
+                plaintText.encrypted = false;
+                CacheService.getInstance().addNewMessage(plaintText);
+            }
+            messages.add(plaintText);
         }
         if (cache == null){
             cache = messages;

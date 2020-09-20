@@ -17,6 +17,9 @@ public class EventBus {
         public  void toatMessage(String msg){}
         public  void noticShow(String message,String title){}
         public  void onChangeProfile(){}
+        public void onConnectedSocket(){}
+        public void onDisconnectedSocket(){}
+
     }
     private List<EvenBusAction> evenBusActions;
 
@@ -87,6 +90,17 @@ public class EventBus {
     public void pushOnChangeProfile(){
         for (EvenBusAction eventBus:evenBusActions){
             eventBus.onChangeProfile();
+        }
+    }
+
+    public void pushOnConnectedSocket(){
+        for (EvenBusAction eventBus:evenBusActions){
+            eventBus.onConnectedSocket();
+        }
+    }
+    public void pushOnDisconnectedSocket(){
+        for (EvenBusAction eventBus:evenBusActions){
+            eventBus.onDisconnectedSocket();
         }
     }
 

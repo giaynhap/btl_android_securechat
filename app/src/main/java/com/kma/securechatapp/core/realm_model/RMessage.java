@@ -49,6 +49,7 @@ public class RMessage  extends RealmObject implements  ChatRealmObject<MessagePl
         messagePlaneText.mesage = this.mesage;
         messagePlaneText.senderUuid = this.senderUuid;
         messagePlaneText.userUuid = this.userUuid;
+        messagePlaneText.threadUuid = this.threadUuid;
         messagePlaneText.time = this.time;
         messagePlaneText.type = this.type;
         messagePlaneText.uuid = this.uuid;

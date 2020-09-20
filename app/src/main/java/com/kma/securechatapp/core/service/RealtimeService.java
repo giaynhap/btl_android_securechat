@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
@@ -31,6 +32,7 @@ import com.kma.securechatapp.core.api.model.SocketLoginDTO;
 import com.kma.securechatapp.core.api.model.SocketMessageCommand;
 import com.kma.securechatapp.core.api.model.UserCryMessage;
 import com.kma.securechatapp.core.api.model.UserInfo;
+import com.kma.securechatapp.core.event.EventBus;
 import com.kma.securechatapp.core.event.EventQrCodeMessage;
 import com.kma.securechatapp.core.security.SecureChatSystem;
 import com.kma.securechatapp.ui.conversation.InboxActivity;
@@ -55,7 +57,7 @@ import ua.naiksoftware.stomp.dto.StompHeader;
 import ua.naiksoftware.stomp.dto.StompMessage;
 
 
-public class RealtimeService extends Service {
+public class RealtimeService extends Service  implements  Runnable{
 
     private StompClient client;
 
@@ -65,7 +67,7 @@ public class RealtimeService extends Service {
     private boolean regist = false;
     private boolean connecting = false;
     private List<String> listThreadRegist = new ArrayList<>();
-
+    Handler delayHandler;
     public class LocalBinder extends Binder {
         public RealtimeService getService() {
             return RealtimeService.this;
@@ -126,16 +128,47 @@ public class RealtimeService extends Service {
         if (client != null){
             disconnectSocket();
         }
+        closeSocket = false;
         initSocket();
         connectSocket();
     }
+    public void reConnect(){
+        if (client != null){
+            connecting = false;
+            if (client != null)
+                try{
+                    client.disconnect();
+                    regist = false;
+                    client = null;
+            }catch (Exception e){
+
+            }
+        }
+        initSocket();
+        connectSocket();
+    }
+    void delayReconnect(){
+        if (delayHandler != null){
+            delayHandler.removeCallbacks(this);
+        } else {
+            delayHandler =  new android.os.Handler();
+        }
+        if (!closeSocket) {
+            delayHandler.postDelayed(this,
+                    1000);
+        }
+    }
+    public void run() {
+        reConnect();
+    }
+
     @SuppressLint("CheckResult")
     void initSocket() {
         token = DataService.getInstance(this).getToken();
         if (client != null){
             disconnectSocket();
         }
-        closeSocket = false;
+
         regist = false;
         client = Stomp.over(Stomp.ConnectionProvider.OKHTTP, BuildConfig.WS_FULL_PATH,null, UnsafeOkHttpClient.getUnsafeOkHttpClient() );
         client.withClientHeartbeat(1000).withServerHeartbeat(1000);
@@ -149,22 +182,29 @@ public class RealtimeService extends Service {
                         case OPENED:
                             connecting = false;
                             Log.d(TAG, "initSocket: OPENED" + lifecycleEvent.getMessage());
+                            EventBus.getInstance().pushOnConnectedSocket();
                             break;
                         case ERROR:
                             connecting = false;
                             Log.d(TAG, "initSocket: ERROR" + lifecycleEvent.getException());
                             if (!closeSocket) {
-                                resStart();
+                                delayReconnect();
                             }
                             break;
                         case CLOSED:
                             connecting = false;
                             Log.d(TAG, "initSocket: CLOSED" + lifecycleEvent.getMessage());
-
+                            EventBus.getInstance().pushOnDisconnectedSocket();
                             break;
-
                     }
-                },throwable -> Log.e(TAG, "Throwable " + throwable.getMessage())  );
+                },throwable ->{
+                    EventBus.getInstance().pushOnDisconnectedSocket();
+                    Log.e(TAG, "Throwable " + throwable.getMessage());
+                    if (!closeSocket) {
+                        delayReconnect();
+                    }
+
+                });
 
     }
 
