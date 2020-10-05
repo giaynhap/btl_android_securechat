@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
@@ -17,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.kma.securechatapp.MainActivity;
 import com.kma.securechatapp.core.AppData;
 import com.kma.securechatapp.R;
 import com.kma.securechatapp.core.api.ApiInterface;
@@ -36,6 +39,7 @@ import com.kma.securechatapp.utils.common.ImageLoader;
 import com.kma.securechatapp.utils.common.Utils;
 
 import java.io.IOException;
+import java.util.concurrent.Executor;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -59,7 +63,11 @@ public class PasswordFragment extends Fragment {
     ImageView loginAvatar;
     @BindView(R.id.login_name)
     TextView loginName;
-
+    @BindView(R.id.fingerprint_image)
+    ImageView fingerprint;
+    private Executor executor;
+    private androidx.biometric.BiometricPrompt biometricPrompt;
+    private androidx.biometric.BiometricPrompt.PromptInfo promptInfo;
     NavController navController;
     boolean checkopt = false;
 
@@ -70,8 +78,8 @@ public class PasswordFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_login2, container, false);
         ButterKnife.bind(this, root);
         optLayout.setVisibility(View.GONE);
+        fingerprint.setVisibility(View.VISIBLE);
         NavController navController = NavHostFragment.findNavController(this);
-
         if (AppData.getInstance().currentUser != null) {
             CheckOpt();
             ImageLoader.getInstance().DisplayImage(ImageLoader.getUserAvatarUrl(AppData.getInstance().currentUser.uuid,200,200),loginAvatar);
@@ -79,9 +87,55 @@ public class PasswordFragment extends Fragment {
         } else {
             ImageLoader.getInstance().DisplayImage(ImageLoader.getUserAvatarUrl(AppData.getInstance().userUUID,200,200),loginAvatar);
             loginName.setText(AppData.getInstance().account);
+
         }
+        //finger print
+        executor = ContextCompat.getMainExecutor(getContext());
+        biometricPrompt = new androidx.biometric.BiometricPrompt(this , executor, new BiometricPrompt.AuthenticationCallback(){
+            @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                Toast.makeText(getContext(),
+                        "Authentication error: " + errString, Toast.LENGTH_SHORT)
+                        .show();
+
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                //Toast.makeText(getContext(), "Authentication succeeded!", Toast.LENGTH_SHORT).show();
+                CommonHelper.showLoading(getContext());
+                AuthenRequest auth = new AuthenRequest(AppData.getInstance().account,"123456");
+                auth.token = optInput.getText().toString();
+                auth.device = new Device();
+                auth.device.deviceCode = AppData.getInstance().deviceId;
+                auth.device.deviceOs = "android";
+                if ( Utils.haveNetworkConnection(getContext())  ) {
+                    onlineLogin(auth);
+                } else {
+                    onLoginSuccess();
+
+                }
+            }
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                //Toast.makeText(getContext(), "Authentication failed", Toast.LENGTH_SHORT).show();
+            }
+        });
+        promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Use fingerprint to login")
+                .setNegativeButtonText("Use account password")
+                .build();
 
 
+        fingerprint.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                biometricPrompt.authenticate(promptInfo);
+            }
+        });
         return root;
     }
 
@@ -112,6 +166,7 @@ public class PasswordFragment extends Fragment {
     }
 
     public void showOpt(){
+        fingerprint.setVisibility(View.GONE);
         optLayout.setVisibility(View.VISIBLE);
     }
 
@@ -146,6 +201,7 @@ public class PasswordFragment extends Fragment {
                     }else{
                         Toast.makeText(PasswordFragment.this.getContext(), "Opt code not match!", Toast.LENGTH_SHORT).show();
                     }
+
                     return;
                 }
                 // login success
@@ -162,7 +218,6 @@ public class PasswordFragment extends Fragment {
                 DataService.getInstance(null).save();
 
                 onLoginSuccess();
-
             }
 
             @Override
@@ -173,6 +228,7 @@ public class PasswordFragment extends Fragment {
         });
 
     }
+
     void onLoginSuccess(){
         EventBus.getInstance().pushOnLogin(AppData.getInstance().currentUser);
         PasswordFragment.this.getActivity().finishActivity(0);

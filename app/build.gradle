@@ -87,7 +87,8 @@ dependencies {
     //Create
     implementation 'androidmads.library.qrgenearator:QRGenearator:1.0.3'
     //Scane
-
     implementation 'com.google.android.gms:play-services-vision:11.8.0'
+    //biometric
+    implementation 'androidx.biometric:biometric:1.0.0-rc01'
 
 }

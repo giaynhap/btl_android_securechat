@@ -90,13 +90,19 @@
 
             <Button
                 android:id="@+id/btn_login2"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_button_corners"
                 android:paddingHorizontal="60dp"
                 android:text="Login"
                 android:textColor="@color/colorTextPrimary"
                 android:textSize="18dip"></Button>
+            <ImageView
+                android:id="@+id/fingerprint_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_action_fingerprint"/>
+
         </LinearLayout>
     </LinearLayout>
 

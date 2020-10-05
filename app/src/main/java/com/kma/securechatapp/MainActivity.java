@@ -140,17 +140,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         RealtimeServiceConnection.getInstance().bindService(this);
-       /* if (AppData.getInstance().getToken() == null) {
+       if (AppData.getInstance().getToken() == null) {
             Intent intent2 = new Intent(this, LoginActivity.class);
             startActivity(intent2);
 
         }else{
             DataService.getInstance(null).save();
             EventBus.getInstance().pushOnLogin(AppData.getInstance().currentUser);
-        }*/
-
-        Intent intent2 = new Intent(this, LoginActivity.class);
-        startActivity(intent2);
+        }
+//        Intent intent2 = new Intent(this, LoginActivity.class);
+//        startActivity(intent2);
 
         DataService.getInstance(null).save();
 
