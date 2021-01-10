@@ -26,13 +26,7 @@ public class AppPermission {
         requestFileStorePermission(context);
     }
     public static void requestSmsPermission(Activity context) {
-        String permission = RECEIVE_SMS;
-        int grant = ContextCompat.checkSelfPermission(context.getApplicationContext(), permission);
-        if ( grant != PackageManager.PERMISSION_GRANTED) {
-            String[] permission_list = new String[1];
-            permission_list[0] = permission;
-            ActivityCompat.requestPermissions(context, permission_list, 1);
-        }
+
     }
     public static  void requestFileStorePermission(Activity context){
         if (
@@ -47,6 +41,9 @@ public class AppPermission {
                         ||
                         ContextCompat.checkSelfPermission(context.getApplicationContext(), CAMERA)
                                 != PackageManager.PERMISSION_GRANTED
+                        ||
+                        ContextCompat.checkSelfPermission(context.getApplicationContext(), RECEIVE_SMS)
+                                != PackageManager.PERMISSION_GRANTED
 
         ) {
             ActivityCompat.requestPermissions(context, new String[]
@@ -56,7 +53,8 @@ public class AppPermission {
                             RECORD_AUDIO,
                             Context.NETWORK_STATS_SERVICE,
                             READ_EXTERNAL_STORAGE,
-                            WRITE_EXTERNAL_STORAGE
+                            WRITE_EXTERNAL_STORAGE,
+                            RECEIVE_SMS
 
                     }, 1);
 
