@@ -12,6 +12,8 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -125,6 +127,10 @@ public class MainActivity extends AppCompatActivity {
 
         tvMainStatus.setText("Offline mode");
         tvMainStatus.setVisibility(View.GONE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            Window w = getWindow();
+            w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        }
         settingFingerPrint();
         Intent intent = new Intent(MainActivity.this, RealtimeService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

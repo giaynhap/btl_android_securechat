@@ -28,7 +28,7 @@ public class DashboardViewHoder extends RecyclerView.ViewHolder {
         if (index < 1) {
             ImageLoader.getInstance().DisplayImage(ImageLoader.getUserAvatarUrl("e758cb50-3d30-498a-a0a9-5bc3a876b8c3", 80, 80), avatar);
             name.setText("Trần Dần");
-            content.setText("Hoàn thành bài tập lớn môn Thực tập cơ sở chuyên ngành.");
+            content.setText("Bài tập an toàn bảo mật ứng dụng.");
 
         }
 
