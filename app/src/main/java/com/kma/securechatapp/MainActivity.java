@@ -1,6 +1,7 @@
 package com.kma.securechatapp;
 
 import android.content.ComponentName;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -13,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -20,6 +22,8 @@ import com.kma.securechatapp.core.AppData;
 import com.kma.securechatapp.core.api.ApiInterface;
 import com.kma.securechatapp.core.api.ApiUtil;
 import com.kma.securechatapp.core.api.model.ApiResponse;
+import com.kma.securechatapp.core.api.model.AuthenRequest;
+import com.kma.securechatapp.core.api.model.Device;
 import com.kma.securechatapp.core.api.model.MessagePlaneText;
 import com.kma.securechatapp.core.api.model.UserInfo;
 import com.kma.securechatapp.core.api.model.UserKey;
@@ -28,6 +32,7 @@ import com.kma.securechatapp.core.service.CacheService;
 import com.kma.securechatapp.core.service.DataService;
 import com.kma.securechatapp.core.service.RealtimeService;
 import com.kma.securechatapp.core.service.RealtimeServiceConnection;
+import com.kma.securechatapp.helper.CommonHelper;
 import com.kma.securechatapp.ui.about.AboutActivity;
 import com.kma.securechatapp.ui.authentication.KeyPasswordActivity;
 import com.kma.securechatapp.ui.authentication.LoginActivity;
@@ -35,10 +40,16 @@ import com.kma.securechatapp.ui.contact.ContactAddActivity;
 import com.kma.securechatapp.ui.profile.SettingsActivity;
 import com.kma.securechatapp.ui.profile.UserProfileActivity;
 import com.kma.securechatapp.utils.common.EncryptFileLoader;
+import com.kma.securechatapp.utils.common.GFingerPrint;
 import com.kma.securechatapp.utils.common.ImageLoader;
+import com.kma.securechatapp.utils.common.Utils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricPrompt;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -49,6 +60,9 @@ import androidx.navigation.ui.NavigationUI;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.Executor;
+
+import javax.crypto.Cipher;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -71,9 +85,13 @@ public class MainActivity extends AppCompatActivity {
     DrawerLayout drawerLayout;
     NavController navController;
     EventBus.EvenBusAction evenBus;
-
     @BindView(R.id.main_status)
     TextView tvMainStatus;
+
+    private androidx.biometric.BiometricPrompt biometricPrompt;
+    private androidx.biometric.BiometricPrompt.PromptInfo promptInfo;
+    GFingerPrint gFingerPrint ;
+    private Executor executor;
 
     class NavigateHeaderBind{
         @BindView(R.id.h_user_name)
@@ -107,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
         tvMainStatus.setText("Offline mode");
         tvMainStatus.setVisibility(View.GONE);
-
+        settingFingerPrint();
         Intent intent = new Intent(MainActivity.this, RealtimeService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // startForegroundService(intent);
@@ -115,12 +133,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             startService(intent);
         }
-
         register();
-
-
-
-
 
         AppData.getInstance().deviceId = Settings.Secure.getString(this.getApplication().getContentResolver(),
                 Settings.Secure.ANDROID_ID);
@@ -140,14 +153,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         RealtimeServiceConnection.getInstance().bindService(this);
-       if (AppData.getInstance().getToken() == null) {
+      // if (AppData.getInstance().getToken() == null) {
             Intent intent2 = new Intent(this, LoginActivity.class);
             startActivity(intent2);
 
-        }else{
+      /*  }else{
             DataService.getInstance(null).save();
             EventBus.getInstance().pushOnLogin(AppData.getInstance().currentUser);
-        }
+        }*/
 //        Intent intent2 = new Intent(this, LoginActivity.class);
 //        startActivity(intent2);
 
@@ -166,6 +179,78 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void settingFingerPrint(){
+        gFingerPrint = new GFingerPrint(this);
+        executor = ContextCompat.getMainExecutor(this);
+        biometricPrompt = new BiometricPrompt(this , executor, new BiometricPrompt.AuthenticationCallback(){
+            @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                Toast.makeText( MainActivity.this,
+                        "Authentication error: " + errString, Toast.LENGTH_SHORT)
+                        .show();
+            }
+
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+
+
+                Cipher cipher =  result.getCryptoObject().getCipher();
+                String encryptPassword = gFingerPrint.encryptPassword(cipher,AppData.getInstance().password);
+
+                DataService.getInstance(null).storeFingerPassword(AppData.getInstance().userUUID,encryptPassword);
+                DataService.getInstance(null).save();
+            }
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+            }
+        });
+        promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Use fingerprint to login")
+                .setNegativeButtonText("Use account password")
+                .build();
+
+    }
+
+    public void checkShowConfirmFigerPrint(){
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                return;
+        }
+        if (gFingerPrint == null || biometricPrompt== null ){
+            return;
+        }
+        if (!gFingerPrint.initKeyStore()){
+            return ;
+        }
+        if (AppData.getInstance().password != null && DataService.getInstance(MainActivity.this).getFingerSaved(AppData.getInstance().userUUID) == null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setMessage("Bạn có muốn sử dụng đăng nhập nhanh bằng dấu vây tay không").setPositiveButton("Có", new DialogInterface.OnClickListener() {
+                @RequiresApi(api = Build.VERSION_CODES.M)
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    try {
+                        Cipher cipher = gFingerPrint.createCipher(Cipher.ENCRYPT_MODE);
+                        biometricPrompt.authenticate(promptInfo, new BiometricPrompt.CryptoObject(cipher));
+                    }  catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    dialog.dismiss();
+                }
+            }).setNegativeButton("Không", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.cancel();
+                }
+            });
+            AlertDialog alertDialog = builder.create();
+
+            // show it
+            alertDialog.show();
+        }
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
@@ -203,9 +288,9 @@ public class MainActivity extends AppCompatActivity {
                             RealtimeServiceConnection.getInstance().restart();
                         }
                     });
-
-                    CacheService.getInstance().init(MainActivity.this,CacheService.getInstance().accountToDbName(AppData.getInstance().userUUID),AppData.getInstance().password);
-
+                    if (AppData.getInstance().password != null) {
+                        CacheService.getInstance().init(MainActivity.this, CacheService.getInstance().accountToDbName(AppData.getInstance().userUUID), AppData.getInstance().password);
+                    }
                     if (AppData.getInstance().currentUser != null ) {
                         // online
                         LoginActivity.showInputPass(MainActivity.this,api);
@@ -226,8 +311,6 @@ public class MainActivity extends AppCompatActivity {
                                 EventBus.getInstance().noticShow("Chưa thiết lập private key","Lỗi đăng nhập");
                             }
                         }
-
-
                     }
                     CacheService.getInstance().saveUser(AppData.getInstance().currentUser, AppData.getInstance().account);
 
@@ -235,6 +318,8 @@ public class MainActivity extends AppCompatActivity {
                     EventBus.getInstance().pushOnRefreshConversation();
                     EventBus.getInstance().pushOnRefreshContact();
 
+
+                    checkShowConfirmFigerPrint();
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (NoSuchAlgorithmException e) {
@@ -246,6 +331,7 @@ public class MainActivity extends AppCompatActivity {
             public void onLogout(UserInfo u){
                 AppData.getInstance().clean();
                 DataService.getInstance(MainActivity.this).storeToken(null,null);
+                DataService.getInstance(MainActivity.this).storeFingerPassword(AppData.getInstance().userUUID,null);
                 DataService.getInstance(MainActivity.this).storeUserUuid(null);
                 DataService.getInstance(MainActivity.this).save();
                 RealtimeServiceConnection.getInstance().onlyDisconnectSocket();

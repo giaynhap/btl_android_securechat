@@ -150,6 +150,9 @@ public class MessageAdapter extends   RecyclerView.Adapter {
         this.messages = messages;
     }
     public void addNewMessage(MessagePlaneText msg){
+        if (this.messages == null){
+            this.messages = new ArrayList<>();
+        }
         this.messages.add(0,msg);
     }
 }

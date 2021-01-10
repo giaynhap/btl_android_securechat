@@ -1,6 +1,7 @@
 package com.kma.securechatapp.ui.authentication;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -35,11 +36,22 @@ import com.kma.securechatapp.core.service.DataService;
 import com.kma.securechatapp.core.service.RealtimeService;
 import com.kma.securechatapp.core.service.RealtimeServiceConnection;
 import com.kma.securechatapp.helper.CommonHelper;
+import com.kma.securechatapp.utils.common.GFingerPrint;
 import com.kma.securechatapp.utils.common.ImageLoader;
 import com.kma.securechatapp.utils.common.Utils;
 
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.util.concurrent.Executor;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -70,7 +82,7 @@ public class PasswordFragment extends Fragment {
     private androidx.biometric.BiometricPrompt.PromptInfo promptInfo;
     NavController navController;
     boolean checkopt = false;
-
+    GFingerPrint gFingerPrint ;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -89,9 +101,16 @@ public class PasswordFragment extends Fragment {
             loginName.setText(AppData.getInstance().account);
 
         }
+
         //finger print
+        SettingFingerPrint();
+        return root;
+    }
+
+    public void SettingFingerPrint(){
+        gFingerPrint = new GFingerPrint(this.getContext());
         executor = ContextCompat.getMainExecutor(getContext());
-        biometricPrompt = new androidx.biometric.BiometricPrompt(this , executor, new BiometricPrompt.AuthenticationCallback(){
+        biometricPrompt = new BiometricPrompt(this , executor, new BiometricPrompt.AuthenticationCallback(){
             @Override
             public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
@@ -104,13 +123,23 @@ public class PasswordFragment extends Fragment {
             @Override
             public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
+                String password = null;
                 //Toast.makeText(getContext(), "Authentication succeeded!", Toast.LENGTH_SHORT).show();
                 CommonHelper.showLoading(getContext());
-                AuthenRequest auth = new AuthenRequest(AppData.getInstance().account,"123456");
+                String encryptPassword = DataService.getInstance(getContext()).getFingerSaved(AppData.getInstance().userUUID);
+                Cipher cipher =  result.getCryptoObject().getCipher();
+                try {
+                    password =   gFingerPrint.decipher(cipher,encryptPassword );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return;
+                }
+                AuthenRequest auth = new AuthenRequest(AppData.getInstance().account,password);
                 auth.token = optInput.getText().toString();
                 auth.device = new Device();
                 auth.device.deviceCode = AppData.getInstance().deviceId;
                 auth.device.deviceOs = "android";
+                AppData.getInstance().password = password;
                 if ( Utils.haveNetworkConnection(getContext())  ) {
                     onlineLogin(auth);
                 } else {
@@ -121,7 +150,6 @@ public class PasswordFragment extends Fragment {
             @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
-                //Toast.makeText(getContext(), "Authentication failed", Toast.LENGTH_SHORT).show();
             }
         });
         promptInfo = new BiometricPrompt.PromptInfo.Builder()
@@ -133,10 +161,31 @@ public class PasswordFragment extends Fragment {
         fingerprint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                biometricPrompt.authenticate(promptInfo);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    try {
+                        Cipher cipher = gFingerPrint.createCipher(Cipher.DECRYPT_MODE);
+                        biometricPrompt.authenticate(promptInfo, new BiometricPrompt.CryptoObject(cipher));
+                    }  catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
-        return root;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (gFingerPrint.initKeyStore()){
+                if (DataService.getInstance(this.getContext()).getFingerSaved(AppData.getInstance().userUUID) != null){
+                    fingerprint.setVisibility(View.VISIBLE);
+                } else {
+                    fingerprint.setVisibility(View.GONE);
+                }
+            } else {
+                fingerprint.setVisibility(View.GONE);
+            }
+        } else {
+            fingerprint.setVisibility(View.GONE);
+        }
     }
 
     public void CheckOpt() {
@@ -179,6 +228,7 @@ public class PasswordFragment extends Fragment {
         auth.device = new Device();
         auth.device.deviceCode = AppData.getInstance().deviceId;
         auth.device.deviceOs = "android";
+        AppData.getInstance().password = password;
         if ( Utils.haveNetworkConnection(this.getContext())  ) {
             onlineLogin(auth);
         } else {

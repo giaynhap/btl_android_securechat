@@ -15,7 +15,7 @@ public class AppData {
      public String account = null;
      public String deviceId = null;
      public UserKey userKey = null;
-     public String password = "md5";
+     public String password = null;
      public String userUUID = null;
      private PrivateKey privateKey = null;
     public  boolean opened = false;
@@ -63,6 +63,9 @@ public class AppData {
              }
          }
          return privateKey;
+    }
+    public String getPrivateKeyString(){
+         return userKey.privateKey;
     }
     public void clean(){
         this.userKey = null;

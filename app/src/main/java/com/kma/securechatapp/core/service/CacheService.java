@@ -64,7 +64,7 @@ public class CacheService {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        return "encr-db-"+key+"-realm.gn";
+        return "x-encr-db-"+key+"-realm.gn";
     }
 
 

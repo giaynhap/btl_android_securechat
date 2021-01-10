@@ -12,6 +12,8 @@ public class DataService {
     private static final String USER_KEY = "USER_UUID";
     private static final String USER_ACCOUNT= "USER_ACCOUNT";
     private static final String PRIVATE_KEY = "PRIVATE_KEY";
+    private static final String SAVE_FINGER = "SAVE_FINGER";
+
     private SharedPreferences sharedPreferences;
     private static DataService instance = null;
     SharedPreferences.Editor editor = null;
@@ -49,6 +51,7 @@ public class DataService {
     public void storePrivateKey(String uuid,String privateKey,String password){
         editor.putString(PRIVATE_KEY+uuid,privateKey);
     }
+
     public void save(){
         editor.apply();
     }
@@ -94,4 +97,17 @@ public class DataService {
         }
         return null;
     }
+
+    public String getFingerSaved(String uuid){
+        try {
+            return sharedPreferences.getString(SAVE_FINGER+uuid, null);
+        }catch (Exception e){
+
+        }
+        return null;
+    }
+    public void storeFingerPassword(String uuid, String password){
+        editor.putString(SAVE_FINGER+uuid,password);
+    }
+
 }
