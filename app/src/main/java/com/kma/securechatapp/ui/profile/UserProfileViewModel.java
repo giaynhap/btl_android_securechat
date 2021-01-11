@@ -13,6 +13,7 @@ import com.kma.securechatapp.core.api.model.ApiResponse;
 import com.kma.securechatapp.core.api.model.Contact;
 import com.kma.securechatapp.core.api.model.Conversation;
 import com.kma.securechatapp.core.api.model.UserInfo;
+import com.kma.securechatapp.core.service.CacheService;
 import com.kma.securechatapp.core.service.RealtimeServiceConnection;
 
 import okhttp3.MultipartBody;
@@ -44,8 +45,10 @@ public class UserProfileViewModel extends ViewModel {
                     conversation.setValue(null);
                 }else
                 {
+                    CacheService.getInstance().addConveration(response.body().data);
                     conversation.setValue(response.body().data);
                 }
+
             }
 
             @Override

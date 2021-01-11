@@ -2,6 +2,7 @@ package com.kma.securechatapp.core.service;
 
 import android.content.Context;
 
+import com.kma.securechatapp.core.AppData;
 import com.kma.securechatapp.core.api.ApiInterface;
 import com.kma.securechatapp.core.api.ApiUtil;
 import com.kma.securechatapp.core.api.model.ApiResponse;
@@ -67,7 +68,13 @@ public class CacheService {
         return "x-encr-db-"+key+"-realm.gn";
     }
 
-
+    public void addConveration(Conversation con){
+        RConversation realmCon = new RConversation();
+        realmCon.fromModel(con);
+        rdb.beginTransaction();
+        rdb.insertOrUpdate(realmCon);
+        rdb.commitTransaction();
+    }
     public void fetchConversation(int page){
         api.pageConversation(page).enqueue(new Callback<ApiResponse<PageResponse<Conversation>>>() {
             @Override
@@ -144,8 +151,13 @@ public class CacheService {
        return user.toModel();
     }
 
-    public Conversation getConversationInfo(String uuid){
-      return  rdb.where(RConversation.class).equalTo("UUID",uuid).findFirst().toModel();
+    public Conversation getConversationInfo(String uuid) {
+        try {
+            return rdb.where(RConversation.class).equalTo("UUID", uuid).findFirst().toModel();
+
+        } catch (Exception e){
+            return null;
+        }
     }
 
     public void updateConversation(Conversation con){

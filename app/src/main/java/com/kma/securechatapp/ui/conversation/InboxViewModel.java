@@ -152,7 +152,9 @@ public class InboxViewModel extends ViewModel {
     public void setConversationUuid(String conversationUuid){
         this.conversationUuid = conversationUuid;
         Conversation con =  CacheService.getInstance().getConversationInfo(conversationUuid);
+        if (con == null){
 
+        }
         conversation = con;
         String ukey = conversation.getKey(AppData.getInstance().currentUser.uuid);
 
