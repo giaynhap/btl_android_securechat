@@ -115,7 +115,7 @@ public class PasswordFragment extends Fragment {
             public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
                 Toast.makeText(getContext(),
-                        "Authentication error: " + errString, Toast.LENGTH_SHORT)
+                        "Lỗi vân tay: " + errString, Toast.LENGTH_SHORT)
                         .show();
 
             }
@@ -153,8 +153,8 @@ public class PasswordFragment extends Fragment {
             }
         });
         promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                .setTitle("Use fingerprint to login")
-                .setNegativeButtonText("Use account password")
+                .setTitle("Sử dụng vân tay để đăng nhập")
+                .setNegativeButtonText("Không sử dụng vân tay")
                 .build();
 
 
@@ -205,7 +205,7 @@ public class PasswordFragment extends Fragment {
             } catch (IOException e) {
                 CommonHelper.hideLoading();
                 navController.navigate(R.id.navigation_account);
-                Toast.makeText(PasswordFragment.this.getContext(),"Request error !",Toast.LENGTH_SHORT).show();
+                Toast.makeText(PasswordFragment.this.getContext(),"Lỗi đăng nhập, xin kiểm tra lại mã đã nhập",Toast.LENGTH_SHORT).show();
 
                 return;
             }
@@ -247,9 +247,9 @@ public class PasswordFragment extends Fragment {
                 CommonHelper.hideLoading();
                 if (response.body() == null || response.body().error != 0 ){
                     if (response.body() == null || response.body().error == 1) {
-                        Toast.makeText(PasswordFragment.this.getContext(), "Password not match!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PasswordFragment.this.getContext(), "Mật khẩu không trùng khớp", Toast.LENGTH_SHORT).show();
                     }else{
-                        Toast.makeText(PasswordFragment.this.getContext(), "Opt code not match!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PasswordFragment.this.getContext(), "Mã OTP không đúng", Toast.LENGTH_SHORT).show();
                     }
 
                     return;
@@ -273,7 +273,7 @@ public class PasswordFragment extends Fragment {
             @Override
             public void onFailure(Call<ApiResponse<AuthenResponse>> call, Throwable t) {
                 CommonHelper.hideLoading();
-                Toast.makeText(PasswordFragment.this.getContext(),"Request error !",Toast.LENGTH_SHORT).show();
+                Toast.makeText(PasswordFragment.this.getContext(),"Đăng nhập thấy bại",Toast.LENGTH_SHORT).show();
             }
         });
 

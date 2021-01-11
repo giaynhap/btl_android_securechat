@@ -98,12 +98,12 @@ public class AccountFragment extends Fragment {
             public void onResponse(Call<ApiResponse<UserInfo>> call, Response<ApiResponse<UserInfo>> response) {
                 CommonHelper.hideLoading();
                 if (response.body() == null){
-                    Toast.makeText(AccountFragment.this.getContext(),"Request error !",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AccountFragment.this.getContext(),"Tài khoản này không tồn tai, xin kiểm tra lại",Toast.LENGTH_SHORT).show();
                     return ;
                 }
 
                 if (response.body().error != 0){
-                    Toast.makeText(AccountFragment.this.getContext(),"Account not exist",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AccountFragment.this.getContext(),"Tài khoản này không tồn tai, xin kiểm tra lại",Toast.LENGTH_SHORT).show();
                     return ;
                 }
 
@@ -118,7 +118,7 @@ public class AccountFragment extends Fragment {
             @Override
             public void onFailure(Call<ApiResponse<UserInfo>> call, Throwable t) {
                 CommonHelper.hideLoading();
-                Toast.makeText(AccountFragment.this.getContext(),"Request error !"+t.toString(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(AccountFragment.this.getContext(),"Có lỗi xảy ra : "+t.toString(),Toast.LENGTH_SHORT).show();
             }
         });
 

@@ -81,7 +81,7 @@ public class KeyPasswordActivity extends AppCompatActivity {
                 api.updateKey(userKey).execute();
             } catch (IOException e) {
                 e.printStackTrace();
-                Toast.makeText(this,"Something error!!",Toast.LENGTH_SHORT).show();
+                Toast.makeText(this,"Có lỗi xảy ra xin thử lại!",Toast.LENGTH_SHORT).show();
             }
             userKey.privateKey = privateKey;
             AppData.getInstance().userKey = userKey;
@@ -105,11 +105,11 @@ public class KeyPasswordActivity extends AppCompatActivity {
                     finish();
                 }
                 else{
-                    Toast.makeText(this,"Private key password not match",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this,"Mật khẩu của private key không đúng",Toast.LENGTH_SHORT).show();
                 }
             }  catch (Exception e)
             {
-                Toast.makeText(this,"Something error!!",Toast.LENGTH_SHORT).show();
+                Toast.makeText(this,"Có lỗi xảy ra xin thử lại!",Toast.LENGTH_SHORT).show();
             }
 
 

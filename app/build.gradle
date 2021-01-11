@@ -37,7 +37,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "HOST", "\"https://124.158.6.49:9833/\""
             buildConfigField "String", "WS_FULL_PATH", "\"wss://124.158.6.49:9833/ws/websocket\""
-
+            useProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),
+                    'proguard-rules.pro'
 
         }
     }

@@ -127,10 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
         tvMainStatus.setText("Offline mode");
         tvMainStatus.setVisibility(View.GONE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            Window w = getWindow();
-            w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        }
+
         settingFingerPrint();
         Intent intent = new Intent(MainActivity.this, RealtimeService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -193,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
             public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
                 Toast.makeText( MainActivity.this,
-                        "Authentication error: " + errString, Toast.LENGTH_SHORT)
+                        "Lỗi vân tay: " + errString, Toast.LENGTH_SHORT)
                         .show();
             }
 
@@ -215,8 +212,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                .setTitle("Use fingerprint to login")
-                .setNegativeButtonText("Use account password")
+                .setTitle("Sử dụng vân tay để đăng nhập")
+                .setNegativeButtonText("Không sử dụng vân tay")
                 .build();
 
     }

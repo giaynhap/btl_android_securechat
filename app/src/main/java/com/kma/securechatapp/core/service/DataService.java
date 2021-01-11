@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.kma.securechatapp.core.security.AES;
+import com.kma.securechatapp.core.security.RSAUtil;
+
 public class DataService {
     private static final String SHARED_PREFERENCES_NAME = "store_msdnid";
     private static final String ACCESSTOKEN_KEY = "ACCESSTOKEN";
@@ -49,7 +52,8 @@ public class DataService {
     }
 
     public void storePrivateKey(String uuid,String privateKey,String password){
-        editor.putString(PRIVATE_KEY+uuid,privateKey);
+        byte[] encryptPrivateKey = AES.encrypt(privateKey, password);
+        editor.putString(PRIVATE_KEY+uuid, RSAUtil.base64Encode(encryptPrivateKey));
     }
 
     public void save(){
@@ -75,7 +79,10 @@ public class DataService {
 
     public String getPrivateKey(String uuid,String password){
         try {
-            return sharedPreferences.getString(PRIVATE_KEY+uuid, null);
+           String privateKeyHex = sharedPreferences.getString(PRIVATE_KEY+uuid, null);
+           byte[] privateKeyEncrypt =  RSAUtil.base64Decode(privateKeyHex);
+
+           return AES.decrypt(privateKeyEncrypt, password);
         }catch (Exception e){
 
         }
