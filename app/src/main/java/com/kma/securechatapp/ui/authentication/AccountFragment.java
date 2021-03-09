@@ -80,8 +80,9 @@ public class AccountFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 10 ){
             if (AppData.getInstance().currentUser != null) {
-                this.getActivity().finishActivity(0);
-                this.getActivity().finish();
+               // this.getActivity().finishActivity(0);
+               // this.getActivity().finish();
+                navController.navigate(R.id.navigation_password);
             }
         }
 

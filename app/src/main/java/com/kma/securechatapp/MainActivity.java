@@ -302,7 +302,6 @@ public class MainActivity extends AppCompatActivity {
                         // offline login
                         AppData.getInstance().currentUser =  CacheService.getInstance().getUser(AppData.getInstance().userUUID);
                         //restore user key
-
                         String privateKey = DataService.getInstance(MainActivity.this.getApplicationContext()).getPrivateKey(AppData.getInstance().userUUID,AppData.getInstance().password);
                         if (privateKey != null){
                             UserKey userKey  =  new UserKey(null,null);
@@ -315,12 +314,11 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     }
-                    CacheService.getInstance().saveUser(AppData.getInstance().currentUser, AppData.getInstance().account);
 
+                    CacheService.getInstance().saveUser(AppData.getInstance().currentUser, AppData.getInstance().account);
                     bindLeftHeader();
                     EventBus.getInstance().pushOnRefreshConversation();
                     EventBus.getInstance().pushOnRefreshContact();
-
 
                     checkShowConfirmFigerPrint();
                 } catch (IOException e) {

@@ -2,6 +2,7 @@ package com.kma.securechatapp.ui.authentication;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.navigation.NavController;
 
 import android.graphics.Camera;
 import android.os.Bundle;
@@ -47,6 +48,7 @@ public class LoginQrScane extends AppCompatActivity {
     Toolbar toolbar;
     CameraSource cameraSource;
     ApiInterface api = ApiUtil.getChatApi();
+
     @Override
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,7 @@ public class LoginQrScane extends AppCompatActivity {
         });
         buildCamera();
         buildCameraView();
+
     }
     void gotPrivateKey(String json) throws IOException {
         CommonHelper.showLoading(LoginQrScane.this);
@@ -93,9 +96,7 @@ public class LoginQrScane extends AppCompatActivity {
         CommonHelper.hideLoading();
 
         RealtimeServiceConnection.getInstance().onlyDisconnectSocket();
-
-        EventBus.getInstance().pushOnLogin(AppData.getInstance().currentUser);
-
+ 
         LoginQrScane.this.finishActivity(10);
         LoginQrScane.this.finish();
     }

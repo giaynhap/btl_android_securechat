@@ -222,6 +222,7 @@ public class InboxViewModel extends ViewModel {
                     mySeckey =  uc.key;
                 }
             }
+
             api.updateKey(conversation.UUID,keys).execute();
             key = buffKey;
             return   mySeckey;

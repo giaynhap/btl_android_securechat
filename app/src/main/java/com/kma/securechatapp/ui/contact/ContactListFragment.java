@@ -1,10 +1,15 @@
 package com.kma.securechatapp.ui.contact;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -14,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.kma.securechatapp.MainActivity;
 import com.kma.securechatapp.R;
 import com.kma.securechatapp.adapter.ContactAdapter;
@@ -26,6 +32,7 @@ import com.kma.securechatapp.utils.misc.RecyclerItemClickListener;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnEditorAction;
 
 public class ContactListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener  {
 
@@ -41,7 +48,31 @@ public class ContactListFragment extends Fragment implements SwipeRefreshLayout.
     @BindView(R.id.contact_swipcontainer)
     SwipeRefreshLayout swipeRefreshLayout;
 
+    @BindView(R.id.contact_search_input)
+    TextInputEditText editTextSearch;
+
     EventBus.EvenBusAction evenBus;
+
+    @OnEditorAction(R.id.contact_search_input)
+    public boolean onSearchAction(TextView v, int actionId, KeyEvent event) {
+        if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+            contactAdapter.search(editTextSearch.getText().toString());
+            hideKeyboard(this.getActivity());
+            return true;
+        }
+        return false;
+    }
+    public static void hideKeyboard(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+
+        View view = activity.getCurrentFocus();
+
+        if (view == null) {
+            view = new View(activity);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         contactViewModel =
