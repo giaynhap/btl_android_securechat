@@ -2,6 +2,14 @@ apply plugin: 'com.android.application'
 apply plugin: 'realm-android'
 
 android {
+    signingConfigs {
+        signingConf {
+            storeFile file('/home/ken-kuro/Desktop/testKeyStore/keystore.jks')
+            storePassword '123456'
+            keyAlias 'key0'
+            keyPassword '123456'
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
@@ -16,7 +24,13 @@ android {
         debug {
             buildConfigField "String", "HOST", "\"https://124.158.6.49:9833/\""
             buildConfigField "String", "WS_FULL_PATH", "\"wss://124.158.6.49:9833/ws/websocket\""
+        }
 
+        ken_kuro {
+            debuggable true
+            signingConfig signingConfigs.debug
+            buildConfigField "String", "HOST", "\"http://10.0.2.2:8082/\""
+            buildConfigField "String", "WS_FULL_PATH", "\"ws://10.0.2.2:8082/ws/websocket\""
         }
 
         debug_lab {
@@ -33,7 +47,6 @@ android {
         }
 
         release {
-
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "HOST", "\"https://124.158.6.49:9833/\""
             buildConfigField "String", "WS_FULL_PATH", "\"wss://124.158.6.49:9833/ws/websocket\""
