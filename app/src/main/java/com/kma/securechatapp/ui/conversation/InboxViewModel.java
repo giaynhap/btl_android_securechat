@@ -105,8 +105,21 @@ public class InboxViewModel extends ViewModel {
     */
 
        rMessages = CacheService.getInstance().queryMessage(conversationUuid,time);
-      if ( (time == 0 && rMessages.size() == 0) || (rMessages.size() > 0 && time == 0 && rMessages.first().time < conversation.lastMessageAt ) ){
+      try{
+          if ( (time == 0 && rMessages.size() == 0) || (rMessages.size() > 0 && time == 0 &&  rMessages.first().time != null && rMessages.first().time < conversation.lastMessageAt ) ){
 
+              rMessages.addChangeListener(new RealmChangeListener<RealmResults<RMessage>>() {
+                  @Override
+                  public void onChange(RealmResults<RMessage> rMessages) {
+                      setMessages(rMessages);
+                      rMessages.removeAllChangeListeners();
+                  }
+              });
+              CacheService.getInstance().fetchMessages(time,conversationUuid,key);
+          } else {
+              setMessages(rMessages);
+          }
+      } catch (Exception e){
           rMessages.addChangeListener(new RealmChangeListener<RealmResults<RMessage>>() {
               @Override
               public void onChange(RealmResults<RMessage> rMessages) {
@@ -115,8 +128,7 @@ public class InboxViewModel extends ViewModel {
               }
           });
           CacheService.getInstance().fetchMessages(time,conversationUuid,key);
-      } else {
-          setMessages(rMessages);
+          e.printStackTrace();
       }
     }
     private void setMessages( RealmResults<RMessage> rmesgs ){
@@ -215,7 +227,11 @@ public class InboxViewModel extends ViewModel {
             List<UserConversation> keys = new ArrayList<UserConversation>();
             for (UserInfo u : conversation.users){
                 UserConversation uc = new UserConversation();
-                uc.key =  RSAUtil.base64Encode(RSAUtil.RSAEncrypt(buffKey,u.getPublicKey()));
+                if ( u.publicKey != null && !u.publicKey.isEmpty()) {
+                    uc.key = RSAUtil.base64Encode(RSAUtil.RSAEncrypt(buffKey, u.getPublicKey()));
+                } else {
+                    uc.key = RSAUtil.base64Encode(buffKey);
+                }
                 uc.userUuid = u.uuid;
                 keys.add(uc);
                 if (u.uuid == AppData.getInstance().userUUID){

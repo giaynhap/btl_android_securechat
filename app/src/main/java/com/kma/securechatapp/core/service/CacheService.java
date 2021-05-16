@@ -47,13 +47,17 @@ public class CacheService {
     }
 
     public void init(Context context, String db ,String password) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        Realm.init(context);
-        RealmConfiguration config = new RealmConfiguration.Builder()
-                .deleteRealmIfMigrationNeeded()
-                .name(db)
-                .encryptionKey( RSAUtil.getSHA512(password))
-                .build();
-        rdb =   Realm.getInstance( config) ;
+      try {
+          Realm.init(context);
+          RealmConfiguration config = new RealmConfiguration.Builder()
+                  .deleteRealmIfMigrationNeeded()
+                  .name(db)
+                  .encryptionKey(RSAUtil.getSHA512(password))
+                  .build();
+          rdb = Realm.getInstance(config);
+      }catch ( Exception e){
+          e.printStackTrace();
+      }
     }
 
     public String accountToDbName(String account){
@@ -128,7 +132,12 @@ public class CacheService {
     }
 
     public RealmResults<RConversation>  queryConversation(){
-       return rdb.where(RConversation.class).sort("lastMessageAt", Sort.DESCENDING).findAll();
+        try {
+            return rdb.where(RConversation.class).sort("lastMessageAt", Sort.DESCENDING).findAll();
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void saveUser(UserInfo userInfo,String userName){

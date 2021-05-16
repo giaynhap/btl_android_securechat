@@ -166,7 +166,11 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
                 return;
             }
             InboxActivity.this.getSupportActionBar().setTitle(conversation.name);
-            inboxViewModel.trigerLoadMessage(0);
+            try {
+                inboxViewModel.trigerLoadMessage(0);
+            } catch ( Exception e){
+                e.printStackTrace();
+            }
             // toolbar.setImageURI()
             ImageLoader.getInstance().loadBitmap(BuildConfig.HOST + "conversation/thumb/" + conversation.UUID + "/" + AppData.getInstance().currentUser.uuid + "?width=80&height=80",bm -> {
                 try {

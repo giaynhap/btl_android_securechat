@@ -47,25 +47,30 @@ public class ConversationListViewModel extends ViewModel {
     public void registEvent(){
 
         conversations =  CacheService.getInstance().queryConversation();
-
-        conversations.addChangeListener(new RealmChangeListener<RealmResults<RConversation>>() {
-            @Override
-            public void onChange(RealmResults<RConversation> rConversations) {
-                ArrayList<Conversation> conns = new ArrayList<>();
-                for (RConversation rlmodel : conversations) {
-                    conns.add(rlmodel.toModel());
+        try {
+            conversations.addChangeListener(new RealmChangeListener<RealmResults<RConversation>>() {
+                @Override
+                public void onChange(RealmResults<RConversation> rConversations) {
+                    ArrayList<Conversation> conns = new ArrayList<>();
+                    for (RConversation rlmodel : conversations) {
+                        conns.add(rlmodel.toModel());
+                    }
+                    setConvetsation(conns);
                 }
-                setConvetsation(conns);
+            });
+
+
+
+            ArrayList<Conversation> conns = new ArrayList<>();
+            for (RConversation rlmodel : conversations) {
+                conns.add(rlmodel.toModel());
             }
-        });
-
-
-        ArrayList<Conversation> conns = new ArrayList<>();
-        for (RConversation rlmodel : conversations) {
-            conns.add(rlmodel.toModel());
+            setConvetsation(conns);
+        } catch (Exception e){
+            ArrayList<Conversation> conns = new ArrayList<>();
+            setConvetsation(conns);
+            e.printStackTrace();
         }
-        setConvetsation(conns);
-
     }
     public void setConvetsation(List<Conversation> conns){
 

@@ -12,10 +12,13 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+    lintOptions {
+        checkReleaseBuilds false
+    }
     buildTypes {
         debug {
-            buildConfigField "String", "HOST", "\"https://124.158.6.49:9833/\""
-            buildConfigField "String", "WS_FULL_PATH", "\"wss://124.158.6.49:9833/ws/websocket\""
+            buildConfigField "String", "HOST", "\"http://192.168.0.100:8083/\""
+            buildConfigField "String", "WS_FULL_PATH", "\"ws://192.168.0.100:8083/ws/websocket\""
 
         }
 

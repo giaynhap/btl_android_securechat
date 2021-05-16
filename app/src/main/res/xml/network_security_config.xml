@@ -4,8 +4,8 @@
         <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="true">192.168.44.104</domain>
         <domain includeSubdomains="true">192.168.44.101</domain>
-        <domain includeSubdomains="true">192.168.56.1</domain>
-        <domain includeSubdomains="true">192.168.0.107</domain>
+        <domain includeSubdomains="true">192.168.0.100</domain>
+        <domain includeSubdomains="true">172.16.16.12</domain>
         <domain includeSubdomains="true">124.158.6.221</domain>
 
     </domain-config>
