@@ -46,7 +46,12 @@ public class MessageSenderViewHolder extends RecyclerView.ViewHolder {
     public void bind (MessagePlaneText msg,boolean hideIcon){
         if (msg.type == 1) {
             //ImageLoader.getInstance().DisplayImage(BuildConfig.HOST +msg.mesage+"?type=small",(ImageView)txtBody);
-            EncryptFileLoader.getInstance().loadEncryptImage(BuildConfig.HOST +msg.mesage,msg.password,(ImageView)txtBody,null);
+            if (msg.password != null) {
+                EncryptFileLoader.getInstance().loadEncryptImage(BuildConfig.HOST + msg.mesage, msg.password, (ImageView) txtBody, null);
+            } else {
+                ImageLoader.getInstance().DisplayImage(BuildConfig.HOST + msg.mesage, (ImageView) txtBody);
+            }
+
             txtBody.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

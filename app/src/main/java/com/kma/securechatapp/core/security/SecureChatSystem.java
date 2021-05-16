@@ -26,36 +26,38 @@ import javax.crypto.NoSuchPaddingException;
 
 public class SecureChatSystem {
     private static SecureChatSystem _instance;
-    public static SecureChatSystem getInstance(){
-        if (_instance == null){
+
+    public static SecureChatSystem getInstance() {
+        if (_instance == null) {
             _instance = new SecureChatSystem();
         }
         return _instance;
     }
-    public List<MessagePlaneText> decoder(List<Message> messages,byte []key){
+
+    public List<MessagePlaneText> decoder(List<Message> messages, byte[] key) {
 
 
         List<MessagePlaneText> messagePlaneTexts = new ArrayList<>();
-        for (Message msg:messages){
-            MessagePlaneText plt = decode(msg,key);
+        for (Message msg : messages) {
+            MessagePlaneText plt = decode(msg, key);
             messagePlaneTexts.add(plt);
         }
         return messagePlaneTexts;
     }
 
-    public MessagePlaneText decode (Message message,byte[]key){
-        if (message== null){
+    public MessagePlaneText decode(Message message, byte[] key) {
+        if (message == null) {
             return null;
         }
 
         MessagePlaneText result = new MessagePlaneText();
         result.threadName = message.threadName;
         result.deviceCode = message.deviceCode;
-        if (key != null) {
+        if (key != null ) {
             result.mesage = decode(message.payload, key);
             result.encrypted = false;
-        }else{
-            result.encrypted = true;
+        } else {
+            result.encrypted = message.encrypt;
             result.mesage = message.payload;
         }
         result.sender = message.sender;
@@ -70,12 +72,13 @@ public class SecureChatSystem {
         return result;
     }
 
-    public String decode (byte[] payload){
+    public String decode(byte[] payload) {
 
         return new String(payload);
     }
-    public String decode (String payload, byte[] key){
 
+    public String decode(String payload, byte[] key) {
+        //return payload;
         try {
            return AES.decrypt(RSAUtil.base64Decode(payload),key);
         } catch (Exception e) {
@@ -84,26 +87,32 @@ public class SecureChatSystem {
         return null;
     }
 
-    public String encode(String mesage, byte[] key){
-        if (mesage == null){
+    public String encode(String mesage, byte[] key) {
+        if (mesage == null) {
             mesage = "";
         }
+       // return mesage;
         try {
             return RSAUtil.base64Encode( AES.encrypt( mesage, key ) );
-
         } catch (Exception e) {
             e.printStackTrace();
         }
         return "";
     }
 
-    public Message encode(MessagePlaneText message,byte[]key){
+    public Message encode(MessagePlaneText message, byte[] key) {
         Message enc = new Message();
 
         enc.deviceCode = message.deviceCode;
         enc.threadName = message.threadName;
         enc.type = message.type;
-        enc.payload = encode(message.mesage,key);
+        if (key != null) {
+            enc.payload = encode(message.mesage, key);
+            enc.encrypt = true;
+        } else {
+            enc.payload = message.mesage;
+            enc.encrypt = false;
+        }
         enc.userUuid = message.userUuid;
         enc.threadUuid = message.threadUuid;
         enc.time = message.time;

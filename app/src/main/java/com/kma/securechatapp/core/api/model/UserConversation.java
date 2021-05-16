@@ -5,12 +5,12 @@ import com.google.gson.annotations.SerializedName;
 import java.time.LocalDateTime;
 
 public class UserConversation {
-    @SerializedName("userUuid")
+    @SerializedName("user_uuid")
     public String userUuid;
 
     @SerializedName("key")
     public String key;
 
-    @SerializedName("lastSeen")
+    @SerializedName("last_seen")
     public Long lastSeen;
 }

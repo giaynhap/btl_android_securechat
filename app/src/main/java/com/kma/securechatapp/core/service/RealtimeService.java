@@ -454,8 +454,6 @@ public class RealtimeService extends Service  implements  Runnable{
         plt.threadUuid = thread;
         plt.deviceCode = deviceCode;
         plt.mesage = message;
-        List<UserCryMessage> msgs = new ArrayList<>();
-        // ma ho voi tung user
 
         Message encMessage =  SecureChatSystem.getInstance().encode(plt,key);
 

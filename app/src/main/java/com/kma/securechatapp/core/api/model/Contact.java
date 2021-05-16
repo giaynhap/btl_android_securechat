@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class Contact {
   @SerializedName("id")
-  public int id;
+  public String id;
   @SerializedName("contact_uuid")
   public String contactUuid;
   @SerializedName("created_at")
@@ -27,7 +27,7 @@ public class Contact {
   public boolean equals(Object o){
     try{
       Contact c = (Contact)o;
-      return c.id == id;
+      return c.id.equals(id);
     }catch (Exception e){
       return false;
     }

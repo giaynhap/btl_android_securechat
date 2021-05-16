@@ -27,6 +27,6 @@ public class DashboardAdapter extends   RecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
-        return 1;
+        return 2;
     }
 }

@@ -224,6 +224,7 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
         RealtimeServiceConnection.getInstance().registThreadToSoft(uuid);
         RealtimeServiceConnection.getInstance().sendStatus(MessageCommand.READ,1,uuid);
     }
+
     @OnClick(R.id.btn_sticker)
     public void onClickSticker(View view){
         isShowSticker = !isShowSticker;
@@ -338,7 +339,10 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
 
             if (type == 1){
                 File file = recoder.getFile();
-                file = EncryptFileLoader.getInstance().encryptFile(file,inboxViewModel.key);
+                if (inboxViewModel.key != null) {
+                    file = EncryptFileLoader.getInstance().encryptFile(file, inboxViewModel.key);
+                }
+                
                 RequestBody requestFile =
                         RequestBody.create(MediaType.parse("multipart/form-data"), file);
                 MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
@@ -449,9 +453,12 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
 
             File file = new File(FilePathStr);
             try {
-                file =  EncryptFileLoader.getInstance().encryptFile(file,inboxViewModel.key);
+                if (inboxViewModel.key != null) {
+                    file = EncryptFileLoader.getInstance().encryptFile(file, inboxViewModel.key);
+                }
                 onChooseImageFile (file,selectedImage);
             } catch (Exception e) {
+                e.printStackTrace();
               Toast.makeText(this,"Encrypt file error ",Toast.LENGTH_SHORT).show();
             }
 
@@ -471,6 +478,7 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
         uploadLayout.addView(imageView);
         new UploadItem(imageView, api.uploadImage(body));
     }
+
     class UploadItem{
         ImageView imageView;
         public UploadItem(ImageView imageView, Call<ApiResponse<String>> call){

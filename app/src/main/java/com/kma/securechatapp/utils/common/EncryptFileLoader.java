@@ -56,20 +56,30 @@ public class EncryptFileLoader {
         }
         InputStream is = client.newCall(request).execute().body().byteStream();
         OutputStream os = new FileOutputStream(f);
-        SecretKeySpec sks = new SecretKeySpec(password,"AES");
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.DECRYPT_MODE, sks);
-        CipherInputStream cis = new CipherInputStream(is, cipher);
-
         byte[] d = new byte[1024 * 1024];
         int b;
-        try {
-            while ((b = cis.read(d)) != -1) {
-                os.write(d, 0, b);
+        if (password != null) {
+            SecretKeySpec sks = new SecretKeySpec(password, "AES");
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.DECRYPT_MODE, sks);
+            CipherInputStream cis = new CipherInputStream(is, cipher);
+            try {
+                while ((b = cis.read(d)) != -1) {
+                    os.write(d, 0, b);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw e;
             }
-        }catch ( Exception e){
-            e.printStackTrace();
-            throw  e;
+        } else {
+            try {
+                while ((b = is.read(d)) != -1) {
+                    os.write(d, 0, b);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw e;
+            }
         }
         os.flush();
         os.close();

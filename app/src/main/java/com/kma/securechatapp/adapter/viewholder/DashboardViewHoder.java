@@ -26,9 +26,14 @@ public class DashboardViewHoder extends RecyclerView.ViewHolder {
     }
     public void bind(int index){
         if (index < 1) {
-            ImageLoader.getInstance().DisplayImage(ImageLoader.getUserAvatarUrl("e758cb50-3d30-498a-a0a9-5bc3a876b8c3", 80, 80), avatar);
+            ImageLoader.getInstance().DisplayImage(ImageLoader.getUserAvatarUrl("bb55c06f-8c7f-49dd-91be-2492bc0ca84c", 80, 80), avatar);
             name.setText("Trần Dần");
-            content.setText("Bài tập an toàn bảo mật ứng dụng.");
+            content.setText("Nội dung bài đăng trên newsfeed");
+
+        } else  if (index < 2) {
+            ImageLoader.getInstance().DisplayImage(ImageLoader.getUserAvatarUrl("bb55c06f-8c7f-49dd-91be-2492bc0ca84c", 80, 80), avatar);
+            name.setText("Trần Dần");
+            content.setText("Demo bài đăng trên new feed");
 
         }
 
