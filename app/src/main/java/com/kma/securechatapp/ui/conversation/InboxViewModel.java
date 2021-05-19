@@ -161,6 +161,15 @@ public class InboxViewModel extends ViewModel {
             cache = null;
         }
     }
+
+    public  void onUpdatedKey(String seckey, Boolean refresh){
+
+        if (refresh) {
+            conversation.conversationKey = seckey;
+            CacheService.getInstance().updateConversation(conversation);
+        }
+        conversationInfo.setValue(conversation);
+    }
     public void setConversationUuid(String conversationUuid){
         this.conversationUuid = conversationUuid;
         Conversation con =  CacheService.getInstance().getConversationInfo(conversationUuid);
@@ -171,19 +180,16 @@ public class InboxViewModel extends ViewModel {
         String ukey = conversation.getKey(AppData.getInstance().currentUser.uuid);
 
         if (ukey == null){
-            String seckey = makeKey();
-            conversation.conversationKey = seckey;
-            CacheService.getInstance().updateConversation(conversation);
+             makeKey();
         }else{
             try {
                 key = RSAUtil.RSADecryptBuffer(RSAUtil.base64Decode(ukey),AppData.getInstance().getPrivateKey());
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
+            onUpdatedKey(null, false);
         }
-        conversationInfo.setValue(conversation);
+
 
 
        /* api.getConversation( this.conversationUuid).enqueue(new Callback<ApiResponse<Conversation>>() {
@@ -239,7 +245,26 @@ public class InboxViewModel extends ViewModel {
                 }
             }
 
-            api.updateKey(conversation.UUID,keys).execute();
+            String finalMySeckey = mySeckey;
+            api.updateKey(conversation.UUID,keys).enqueue(new Callback<ApiResponse<String>>() {
+                @Override
+                public void onResponse(Call<ApiResponse<String>> call, Response<ApiResponse<String>> response) {
+                    if (response.body() == null || response.body().error != 0){
+                        key = null;
+                        onUpdatedKey(null, false);
+                    } else {
+                        onUpdatedKey(finalMySeckey, true);
+
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ApiResponse<String>> call, Throwable t) {
+                    key = null;
+                    onUpdatedKey(null, false);
+                }
+            });
+
             key = buffKey;
             return   mySeckey;
 
@@ -268,7 +293,11 @@ public class InboxViewModel extends ViewModel {
     }
 
     public boolean send(int type,String message,String uuid){
-       return RealtimeServiceConnection.getInstance().send(type,message,uuid,key);
+        if (key == null || key.length == 0) {
+            return RealtimeServiceConnection.getInstance().send(type, message, uuid, null);
+        } else {
+            return RealtimeServiceConnection.getInstance().send(type, message, uuid, key);
+        }
 
     }
 
