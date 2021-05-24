@@ -32,7 +32,7 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     public interface ChatUiEvent{
         public void loadedMessages(List<MessagePlaneText> messages);
         public void revcNewMessage(MessagePlaneText message);
-
+        public void removeMessage(String message);
     }
     protected ChatUiEvent event;
     @BindView(R.id.load_more)
@@ -58,6 +58,13 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         @Override
         public void revcNewMessage(MessagePlaneText message) {
             messageAdapter.addNewMessage(message);
+            messageAdapter.notifyItemInserted(0);
+            recyclerView.scrollToPosition(0);
+        }
+
+        @Override
+        public void removeMessage(String message) {
+            messageAdapter.removeMessage(message);
             messageAdapter.notifyItemInserted(0);
             recyclerView.scrollToPosition(0);
         }

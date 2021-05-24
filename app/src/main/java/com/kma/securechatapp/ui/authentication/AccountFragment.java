@@ -110,6 +110,7 @@ public class AccountFragment extends Fragment {
 
                 AppData.getInstance().currentUser = response.body().data;
                 AppData.getInstance().userUUID = response.body().data.uuid;
+                AppData.getInstance().currentTransactionId = response.body().transactionId;
                 DataService.getInstance(null).storeUserAccount( AppData.getInstance().account) ;
 
                 navController.navigate(R.id.navigation_password);

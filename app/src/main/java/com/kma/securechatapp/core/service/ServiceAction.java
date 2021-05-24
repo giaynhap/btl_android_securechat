@@ -6,4 +6,5 @@ public class ServiceAction {
     public final static String REVC_MESSAGE = "revc_message";
     public final static String REVC_READ = "revc_read";
     public final static String REVC_TYPING = "revc_typing";
+    public final static String REVC_BLOCK = "revc_block";
 }

@@ -311,6 +311,9 @@ public class RealtimeService extends Service  implements  Runnable{
                             case TYPING:
                                 sendBroadcastStatus(ServiceAction.REVC_TYPING, message.getData().uuid, message.getData().senderUuid, message.getData().type);
                                 break;
+                            case BLOCK:
+                                sendBroadcastStatus(ServiceAction.REVC_BLOCK, message.getData().getUuid(),"", 1);
+                                break;
                         }
 
                     },  throwable -> Log.e(TAG, "Throwable " + throwable.getMessage()));
@@ -347,6 +350,7 @@ public class RealtimeService extends Service  implements  Runnable{
         intent.putExtra("data", new Gson().toJson(message));
         sendBroadcast(intent);
     }
+
     void sendBroadcastStatus(String type,String uuid,String useruuid, int status) {
         Intent intent = new Intent();
         intent.setAction(type);

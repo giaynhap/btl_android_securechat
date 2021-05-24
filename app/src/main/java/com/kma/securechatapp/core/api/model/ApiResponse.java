@@ -11,10 +11,15 @@ public class ApiResponse<T>{
     public String message;
     @SerializedName("data")
     public T data;
+    @SerializedName("transaction_id")
+    public long transactionId;
+
 
     public ApiResponse(int error, String message, T data) {
         this.error = error;
         this.message = message;
         this.data = data;
     }
+
+
 }

@@ -75,6 +75,10 @@ public class InboxViewModel extends ViewModel {
         CacheService.getInstance().addNewMessage(newMessage);
        // cache.add(0,newMessage);
     }
+
+    public void removeMessage(String messageId) {
+        CacheService.getInstance().removeMessage(messageId);
+    }
     public void trigerLoadMessage(long time){
       /*  api.pageMessage(conversationUuid,time).enqueue(new Callback<ApiResponse<List<Message>>>() {
             @Override

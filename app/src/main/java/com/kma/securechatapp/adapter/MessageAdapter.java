@@ -155,4 +155,22 @@ public class MessageAdapter extends   RecyclerView.Adapter {
         }
         this.messages.add(0,msg);
     }
+
+    public void removeMessage(String message){
+     //   this.messages.removeIf(m -> m.uuid.equals(message));
+        int size = this.messages.size();
+        int index = -1;
+        for ( int i = 0 ;i < size ;i++){
+            MessagePlaneText m = this.messages.get(i);
+            if (m.uuid.equals(message)) {
+
+                index = i;
+                break;
+            }
+        }
+        if (index >= 0){
+            this.messages.get(index).mesage = "Tin nhặn bị chặn từ hệ thống ";
+            this.notifyItemChanged(index);
+        }
+    }
 }

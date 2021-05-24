@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import android.service.autofill.UserData;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -202,6 +203,7 @@ public class PasswordFragment extends Fragment {
                 else{
                     optLayout.setVisibility(View.GONE);
                 }
+                AppData.getInstance().currentTransactionId = data.body().transactionId;
             } catch (IOException e) {
                 CommonHelper.hideLoading();
                 navController.navigate(R.id.navigation_account);
@@ -228,6 +230,7 @@ public class PasswordFragment extends Fragment {
         auth.device = new Device();
         auth.device.deviceCode = AppData.getInstance().deviceId;
         auth.device.deviceOs = "android";
+        auth.transactionId = AppData.getInstance().currentTransactionId;
         AppData.getInstance().password = password;
         if ( Utils.haveNetworkConnection(this.getContext())  ) {
             onlineLogin(auth);
@@ -246,9 +249,16 @@ public class PasswordFragment extends Fragment {
             public void onResponse(Call<ApiResponse<AuthenResponse>> call, Response<ApiResponse<AuthenResponse>> response) {
                 CommonHelper.hideLoading();
                 if (response.body() == null || response.body().error != 0 ){
+
+                    if (response.body().transactionId > 0){
+                        AppData.getInstance().currentTransactionId = response.body().transactionId;
+                    }
                     if (response.body() == null || response.body().error == 1) {
                         Toast.makeText(PasswordFragment.this.getContext(), "Mật khẩu không trùng khớp", Toast.LENGTH_SHORT).show();
                     }else{
+                        if (optLayout.getVisibility() == View.GONE){
+                            optLayout.setVisibility(View.VISIBLE);
+                        }
                         Toast.makeText(PasswordFragment.this.getContext(), "Mã OTP không đúng", Toast.LENGTH_SHORT).show();
                     }
 

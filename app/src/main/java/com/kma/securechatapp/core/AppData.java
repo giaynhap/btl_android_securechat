@@ -19,6 +19,7 @@ public class AppData {
      public String userUUID = null;
      private PrivateKey privateKey = null;
     public  boolean opened = false;
+    public Long currentTransactionId = 0l;
 
 
      public UserInfo currentUser;

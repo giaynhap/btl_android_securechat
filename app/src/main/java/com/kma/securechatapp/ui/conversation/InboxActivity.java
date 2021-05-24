@@ -219,6 +219,7 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
         filter.addAction(ServiceAction.REVC_MESSAGE);
         filter.addAction(ServiceAction.REVC_READ);
         filter.addAction(ServiceAction.REVC_TYPING);
+        filter.addAction(ServiceAction.REVC_BLOCK);
 
         registerReceiver(receiver, filter);
         RealtimeServiceConnection.getInstance().registThreadToSoft(uuid);
@@ -409,6 +410,14 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
 
 
     @Override
+    public void onBlock(String messageId) {
+        inboxViewModel.removeMessage(messageId);
+        if (uiEvent!=null){
+            uiEvent.removeMessage(messageId);
+        }
+    }
+
+    @Override
     public void onRead(String conversationId, String username) {
 
     }
@@ -433,18 +442,18 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
 
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        if (requestCode == PICK_IMAGE  && resultCode == RESULT_OK && data != null && data.getData() !=null ) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE && resultCode == RESULT_OK && data != null && data.getData() != null) {
 
-            if (ContextCompat.checkSelfPermission(this.getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+            if (ContextCompat.checkSelfPermission(this.getApplicationContext(), READ_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
-                    return;
+                return;
             }
 
             Uri selectedImage = data.getData();
             String[] filePath = {MediaStore.Images.Media.DATA};
-            Cursor c = getContentResolver().query(selectedImage, filePath,null, null, null);
+            Cursor c = getContentResolver().query(selectedImage, filePath, null, null, null);
             c.moveToFirst();
             int columnIndex = c.getColumnIndex(filePath[0]);
             String FilePathStr = c.getString(columnIndex);
@@ -456,10 +465,10 @@ public class InboxActivity extends AppCompatActivity implements  SocketReceiver.
                 if (inboxViewModel.key != null) {
                     file = EncryptFileLoader.getInstance().encryptFile(file, inboxViewModel.key);
                 }
-                onChooseImageFile (file,selectedImage);
+                onChooseImageFile(file, selectedImage);
             } catch (Exception e) {
                 e.printStackTrace();
-              Toast.makeText(this,"Encrypt file error ",Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Encrypt file error ", Toast.LENGTH_SHORT).show();
             }
 
         }

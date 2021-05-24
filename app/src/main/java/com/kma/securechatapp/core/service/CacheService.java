@@ -72,6 +72,24 @@ public class CacheService {
         return "x-encr-db-"+key+"-realm.gn";
     }
 
+    public void removeMessage(String message){
+        try{
+            rdb.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    try {
+                        RealmResults<RMessage> rows = realm.where(RMessage.class).equalTo("uuid", message).findAll();
+                        rows.first().deleteFromRealm();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     public void addConveration(Conversation con){
         RConversation realmCon = new RConversation();
         realmCon.fromModel(con);
@@ -79,6 +97,7 @@ public class CacheService {
         rdb.insertOrUpdate(realmCon);
         rdb.commitTransaction();
     }
+
     public void fetchConversation(int page){
         api.pageConversation(page).enqueue(new Callback<ApiResponse<PageResponse<Conversation>>>() {
             @Override

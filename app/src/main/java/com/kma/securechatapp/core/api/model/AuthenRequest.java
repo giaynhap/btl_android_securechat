@@ -17,6 +17,8 @@ public class AuthenRequest{
 
     @SerializedName("device")
     public Device device;
+    @SerializedName("transaction_id")
+    public long transactionId;
 
     public AuthenRequest(String username, String password) {
         this.username = username;

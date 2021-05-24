@@ -25,8 +25,8 @@ android {
     }
     buildTypes {
         debug {
-            buildConfigField "String", "HOST", "\"http://192.168.0.103:8033/\""
-            buildConfigField "String", "WS_FULL_PATH", "\"ws://192.168.0.103:8033/ws/websocket\""
+            buildConfigField "String", "HOST", "\"http://172.16.16.35:8033/\""
+            buildConfigField "String", "WS_FULL_PATH", "\"ws://172.16.16.35:8033/ws/websocket\""
         }
 
         ken_kuro {

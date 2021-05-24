@@ -17,7 +17,7 @@ public class SocketReceiver extends BroadcastReceiver {
         void onTyping(String conversationId, String userUuid, boolean typing);
 
         void onRead(String conversationId, String userUuid);
-
+        void onBlock(String messageId);
     }
 
     @Override
@@ -33,11 +33,21 @@ public class SocketReceiver extends BroadcastReceiver {
             case ServiceAction.REVC_READ:
                 handle_read(intent);
                 break;
+            case ServiceAction.REVC_BLOCK:
+                handle_block(intent);
             default:
                 break;
         }
 
     }
+
+    public void handle_block(Intent intent){
+        if (listener != null){
+            String uuid = intent.getStringExtra("uuid");
+            listener.onBlock(uuid);
+        }
+    }
+
     public void handle_read(Intent intent){
         String uuid = intent.getStringExtra("uuid");
         String userUuid = intent.getStringExtra("useruuid");
